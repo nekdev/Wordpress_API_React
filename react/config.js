@@ -1,1 +1,1 @@
-export const Config = { apiUrl: "http://yourUrl.dev" };
+export const Config = { apiUrl: "http://gerti.dev" };

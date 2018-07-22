@@ -59,11 +59,11 @@ class Index extends Component {
         <Menu menu={this.props.headerMenu} />
         <Container>
           <Row>
-            <Col xs="6">
+            <Col xs="12" md="6">
               <h2>Posts</h2>
               {posts}
             </Col>
-            <Col xs="6">
+            <Col xs="12" md="6">
               <h2>Pages</h2>
               {pages}
             </Col>

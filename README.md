@@ -69,6 +69,16 @@ It's time to cd into the react folder and run
 npm install && npm run dev
 ```
 
+For the moment change manualy the url of development in /react/config.js to much your domain
+
+if you see
+
+```
+Failed to fetch
+```
+
+install chrome extension Allow-Control-Allow-Origin an enable Enable cross-origin resource sharing (don't forget to disable after you finish or some websites will show an error)
+
 ## Acknowledgments
 
 - https://github.com/postlight/headless-wp-starter
