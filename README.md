@@ -4,7 +4,7 @@ An easy to start Wordpress installation with start up theme configured to output
 
 The install.sh script:
 
-- Automaticaly create virtual host on Apache [yourdomain.dev],
+- Automaticaly create virtual host on Apache [yourdomain.test],
 - Enable site and add host entry
 - Install Wordpress latest
 - Install wp-cli
@@ -29,13 +29,12 @@ NPM or YARN
 
 Apache2, mysql, php
 
-Your local development installation is up to you but keep in mind
+Your local development installation is up to you but keep in mind :
 
-the script will be looking for:
-
-```
-/var/www/
-```
+- the script will be looking for: /var/www/
+- default mysql credentials for database creation are phpmyadmin / root
+- you can change this settings at the begining of the script
+- if you let the script create the db for you, the db name will be the domain entered but instead of extension [.test] will be [db]. ex [yourdomaindb]
 
 So make sure you got that going or edit the install.sh if you have to!
 
@@ -57,27 +56,33 @@ run the install
 
 The script will guide you through and allow you to
 
-create the development domain [mydomain.dev],
+create the development domain [mydomain.test],
 
 go through database creation options
 
 Your wordpress installation is now ready.
 
-It's time to cd into the react folder and run
+You can visit yourdomain.test/wp-admin to check Wordpress installation
+
+The script will automaticaly run:
 
 ```
 npm install && npm run dev
 ```
 
-For the moment change manualy the url of development in /react/config.js to much your domain
+Now everything should be ready, just visit:
 
-if you see
+```
+http://localhost:3000
+```
+
+If you see
 
 ```
 Failed to fetch
 ```
 
-install chrome extension Allow-Control-Allow-Origin an enable Enable cross-origin resource sharing (don't forget to disable after you finish or some websites will show an error)
+install chrome extension Allow-Control-Allow-Origin and enable cross-origin resource sharing (don't forget to disable after you finish or some websites will show an error)
 
 ## Acknowledgments
 
