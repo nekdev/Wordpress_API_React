@@ -65,8 +65,7 @@ EOF'
             read dbpass
             wp core download --version=latest --locale=en_US --force
             wp core config --dbname=$dbname --dbuser=$dbusr --dbpass=$dbpass --dbhost=localhost
-            wp db drop --yes
-            db create
+
         else
             dbusrentry="${ans/.*/db}"
             echo -e "${green}I will create a database ${dbusrentry} with the default mysql credentials (${mysqlusr}/${mysqlpass}). \nDo you want to continue \n ${red}(y/n)?${reset} "

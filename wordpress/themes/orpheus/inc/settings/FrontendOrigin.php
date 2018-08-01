@@ -18,7 +18,7 @@ class FrontendOrigin
      * @return str Frontend origin URL, i.e., http://localhost:3000.
      */
     function get_frontend_origin() {
-        return 'http://gerti.dev';
+        return 'http://localhost:3000';
     }
 
 }
