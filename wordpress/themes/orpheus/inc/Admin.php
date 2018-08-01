@@ -11,8 +11,11 @@ if ( file_exists( get_template_directory(). '/vendor/autoload.php')) {
     require_once get_template_directory(). '/vendor/autoload.php';
 }
 
-use Inc\functions\AcfOptions;
-use Inc\functions\FrontendOrigin;
+use Inc\settings\AcfOptions;
+use Inc\settings\FrontendOrigin;
+use Inc\settings\MenuOptions;
+use Inc\settings\Settings;
+use Inc\settings\EnqueueAdmin;
 
 
 class Admin {
@@ -23,6 +26,9 @@ class Admin {
         $this   ->  themeUri            =   get_template_directory_uri();
         $this   ->  acf_options         =   new AcfOptions;
         $this   ->  frontend_origin     =   new FrontendOrigin;
+        $this   ->  MenuOptions         =   new MenuOptions;
+        $this   ->  Settings            =   new Settings;
+        $this   ->  enqueueAdmin        =   new EnqueueAdmin;
     }
     function register()
     {
@@ -30,10 +36,21 @@ class Admin {
         add_filter( 'script_loader_src', array($this, 'removeVersion' ));
         add_filter( 'style_loader_src', array($this, 'removeVersion' ));
         add_filter( 'the_generator', array($this, 'removeMetaVersion') );
+        add_action( 'admin_enqueue_scripts', array($this->enqueueAdmin, 'enqueueAdmin' ));
         add_action( 'after_setup_theme', array($this, 'orpheus_setup'));
         add_filter('upload_mimes', array($this, 'cc_mime_types'));
         add_filter( 'wp_terms_checklist_args', array($this, 'taxonomy_ontop_filter' ));
         add_filter( 'preview_post_link', array($this, 'set_headless_preview_link' ));
+        add_action( 'admin_menu',array($this->MenuOptions, 'admin_menu_option'));
+        add_action( 'init', array($this->Settings,'blog_cpt'));
+        add_filter( 'manage_anila_contact_posts_columns', array($this->Settings, 'set_contact_columns'));
+        remove_filter( 'the_excerpt', 'wpautop' );
+        // add_action( 'manage_anila_contact_posts_custom_column', array($this->Settings, 'contact_custom_column'), 10, 2);
+        // add_action( 'add_meta_boxes', array($this->Settings,'contact_add_metabox' ));
+        // add_action( 'save_post', array($this->Settings, 'anila_save_email_data'));
+        // add_shortcode( 'booking_form', array($this->shortcodes, 'booking_form'));
+
+
         add_action( 'rest_api_init', function () {
 
             remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
@@ -81,6 +98,7 @@ class Admin {
                         ),
                     ],
                 ] );
+
 
                 register_rest_route( 'orpheus/v1', '/page', [
                     'methods'  => 'GET',
@@ -190,6 +208,7 @@ class Admin {
     function rest_get_post( WP_REST_Request $request ) {
         return $this->rest_get_content( $request, 'post', __FUNCTION__ );
     }
+
 
     /**
      * Respond to a REST API request to get page data.

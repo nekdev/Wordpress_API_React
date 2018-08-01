@@ -7,7 +7,7 @@
  * Placeholder function for determining the frontend origin.
  * =========================================================
  */
-namespace Inc\functions;
+namespace Inc\settings;
 
 class FrontendOrigin
 {

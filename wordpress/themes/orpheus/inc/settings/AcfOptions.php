@@ -7,7 +7,7 @@
  * Add a custom options page to associate ACF fields with
  * ======================================================
  */
-namespace Inc\functions;
+namespace Inc\settings;
 
 class AcfOptions
 {
