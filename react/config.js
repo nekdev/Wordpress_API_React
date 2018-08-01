@@ -1,1 +1,1 @@
-export const Config = { apiUrl: "http://fotini.test" };
+export const Config = { apiUrl: "http://anila.test" };

@@ -15,15 +15,9 @@ class Header extends Component {
       <div>
         <Head>
           <style dangerouslySetInnerHTML={{ __html: stylesheet }} />
-          <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css"
-            integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
-            crossOrigin="anonymous"
-          />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta charSet="utf-8" />
-          <title>WordPress + React Starter Kit Frontend by Postlight</title>
+          <title>WordPress & React by Aristech</title>
         </Head>
       </div>
     );

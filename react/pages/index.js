@@ -4,8 +4,9 @@ import fetch from "isomorphic-unfetch";
 import Link from "next/link";
 import PageWrapper from "../components/PageWrapper.js";
 import Menu from "../components/Menu.js";
+import JumboTron from "../components/JumboTron";
 import { Config } from "../config.js";
-import { Container, Row, Col } from "reactstrap";
+import { Container } from "reactstrap";
 
 const headerImageStyle = {
   marginTop: 50,
@@ -57,17 +58,8 @@ class Index extends Component {
     return (
       <Layout>
         <Menu menu={this.props.headerMenu} />
-        <Container>
-          <Row>
-            <Col xs="12" md="6">
-              <h2>Posts</h2>
-              {posts}
-            </Col>
-            <Col xs="12" md="6">
-              <h2>Pages</h2>
-              {pages}
-            </Col>
-          </Row>
+        <Container fluid className="wrapper">
+          <JumboTron />
         </Container>
       </Layout>
     );

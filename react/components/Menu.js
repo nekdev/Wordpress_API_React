@@ -8,7 +8,8 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  NavLink
+  NavLink,
+  Media
 } from "reactstrap";
 
 const linkStyle = {
@@ -16,19 +17,20 @@ const linkStyle = {
   cursor: "pointer"
 };
 
+const logoStyle = {
+  maxWidth: 250
+};
+
 class Menu extends Component {
-  constructor() {
-    super();
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      isOpen: false
-    };
-  }
-  toggle() {
+  state = {
+    isOpen: false
+  };
+
+  toggle = () => {
     this.setState({
       isOpen: !this.state.isOpen
     });
-  }
+  };
 
   getSlug(url) {
     const parts = url.split("/");
@@ -37,17 +39,10 @@ class Menu extends Component {
 
   render() {
     const menuItems = this.props.menu.items.map((item, index) => {
-      if (item.object === "custom") {
-        return (
-          <Link href={item.url} key={item.ID}>
-            <a style={linkStyle}>{item.title}</a>
-          </Link>
-        );
-      }
       const slug = this.getSlug(item.url);
       const actualPage = item.object === "category" ? "category" : "post";
       return (
-        <NavItem key={item.ID}>
+        <NavItem key={index}>
           <Link
             as={`/${item.object}/${slug}`}
             href={`/${actualPage}?slug=${slug}&apiRoute=${item.object}`}
@@ -60,8 +55,15 @@ class Menu extends Component {
 
     return (
       <div>
-        <Navbar color="dark" dark expand="md" role="navigation">
-          <NavbarBrand href="/">reactstrap</NavbarBrand>
+        <Navbar fixed="top" color="#000" dark expand="md" role="navigation">
+          <NavbarBrand href="/">
+            <Media
+              object
+              src="../static/images/logo.svg"
+              alt="Orpheus"
+              style={logoStyle}
+            />
+          </NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
