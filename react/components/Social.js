@@ -13,7 +13,7 @@ class Social extends Component {
     data: []
   };
   componentWillMount() {
-    fetch("http://fotini.test/wp-json/orpheus/v1/social")
+    fetch(`${Config.apiUrl}/wp-json/orpheus/v1/social`)
       .then(response => response.json())
       .then(responseJson => {
         this.setState({ data: responseJson });
@@ -22,7 +22,7 @@ class Social extends Component {
 
   render() {
     //map throu data object and extract key and value
-    console.log(this.state.data.facebook);
+    // console.log(this.state.data.facebook);
 
     return (
       <div className="footer-socials">
@@ -39,7 +39,7 @@ class Social extends Component {
                 data-icon="simple-line-icons:social-'.$key.'"
                 data-inline="false"
               >
-                {this.state.data.facebook}
+                {/* {this.state.data.facebook} */}
               </span>
             </a>
           </li>
