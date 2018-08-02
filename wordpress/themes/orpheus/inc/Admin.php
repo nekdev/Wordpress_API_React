@@ -45,12 +45,8 @@ class Admin {
         add_filter( 'preview_post_link', array($this, 'set_headless_preview_link' ));
         add_action( 'admin_menu',array($this->MenuOptions, 'admin_menu_option'));
         add_action( 'init', array($this->Settings,'blog_cpt'));
-        // add_filter( 'manage_anila_contact_posts_columns', array($this->Settings, 'set_contact_columns'));
         remove_filter( 'the_excerpt', 'wpautop' );
-        // add_action( 'manage_anila_contact_posts_custom_column', array($this->Settings, 'contact_custom_column'), 10, 2);
-        // add_action( 'add_meta_boxes', array($this->Settings,'contact_add_metabox' ));
-        // add_action( 'save_post', array($this->Settings, 'anila_save_email_data'));
-        // add_shortcode( 'booking_form', array($this->shortcodes, 'booking_form'));
+
 
 
         add_action( 'rest_api_init', function () {
@@ -255,12 +251,8 @@ class Admin {
      * @return WP_REST_Response
      */
     function rest_social( WP_REST_Request $request ) {
-        $socials   =   array(
-            'facebook'  => esc_attr( get_option( 'orpheus_facebook' ) ),
-            'twitter'   => esc_attr( get_option( 'orpheus_twitter' ) ),
-            'google'    => esc_attr( get_option( 'orpheus_google' ) ),
-        );
-    return $socials;
+        $socials = $this->socials->social_display();
+        return $socials;
     }
 
 

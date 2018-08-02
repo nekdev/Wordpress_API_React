@@ -12,6 +12,9 @@ body {
   h2 {
     color: $themeColor-Light;
   }
+  li {
+    list-style: none;
+  }
 }
 .table {
   display: table;
@@ -229,6 +232,67 @@ footer {
   justify-content: space-around;
   flex-wrap: wrap;
   margin-top: 3rem;
+  .footer-elements {
+    .footer-socials {
+      .social-links {
+        padding: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
+        transition: flex 0.9s ease-out;
+        li {
+          margin: 0 1rem;
+          a {
+            .simple-svg {
+              width: 2em;
+              height: 2em;
+
+              path {
+                fill: #847c71;
+                transition: all 0.6s;
+              }
+              &:hover path {
+                fill: #fff;
+              }
+            }
+          }
+        }
+      }
+    }
+    .subscribe-me {
+      margin: 2rem 0;
+      .lead.subscribe-text {
+        color: #acacac;
+        font-weight: 100;
+      }
+      .form-inline {
+        justify-content: center !important;
+        .input-group {
+          flex: 1;
+          input#MERGE0 {
+            background-color: rgba(0, 0, 0, 0) !important;
+            color: #fff;
+            border-color: #847c71 !important;
+          }
+        }
+        .btn.btn-outline-light.mb-2 {
+          border-color: #847c71 !important;
+          color: #847c71 !important;
+        }
+      }
+    }
+    .sub-footer {
+      .mini-links {
+        display: flex;
+        justify-content: space-around;
+        .policy {
+          color: #847c71 !important;
+        }
+      }
+    }
+  }
 }
 
 @include media-breakpoint-up(sm) {
