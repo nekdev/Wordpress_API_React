@@ -16,6 +16,7 @@ use Inc\settings\FrontendOrigin;
 use Inc\settings\MenuOptions;
 use Inc\settings\Settings;
 use Inc\settings\EnqueueAdmin;
+use Inc\settings\Socials;
 
 
 class Admin {
@@ -28,6 +29,7 @@ class Admin {
         $this   ->  frontend_origin     =   new FrontendOrigin;
         $this   ->  MenuOptions         =   new MenuOptions;
         $this   ->  Settings            =   new Settings;
+        $this   ->  socials             =   new Socials;
         $this   ->  enqueueAdmin        =   new EnqueueAdmin;
     }
     function register()
@@ -43,7 +45,7 @@ class Admin {
         add_filter( 'preview_post_link', array($this, 'set_headless_preview_link' ));
         add_action( 'admin_menu',array($this->MenuOptions, 'admin_menu_option'));
         add_action( 'init', array($this->Settings,'blog_cpt'));
-        add_filter( 'manage_anila_contact_posts_columns', array($this->Settings, 'set_contact_columns'));
+        // add_filter( 'manage_anila_contact_posts_columns', array($this->Settings, 'set_contact_columns'));
         remove_filter( 'the_excerpt', 'wpautop' );
         // add_action( 'manage_anila_contact_posts_custom_column', array($this->Settings, 'contact_custom_column'), 10, 2);
         // add_action( 'add_meta_boxes', array($this->Settings,'contact_add_metabox' ));
@@ -74,8 +76,22 @@ class Admin {
                 $post_slug_arg = array_merge(
                     $slug_arg,
                     [
-                        "name" => "WordPress Site",
+                        "name" => "Orpheus",
                         'description' => 'String representing a valid WordPress post slug',
+                    ]
+                );
+                $contact_slug_arg = array_merge(
+                    $slug_arg,
+                    [
+                        "name" => "Orpheus",
+                        'description' => 'Contact form',
+                    ]
+                );
+                $social_slug_arg = array_merge(
+                    $slug_arg,
+                    [
+                        "name" => "Orpheus",
+                        'description' => 'Socials',
                     ]
                 );
                 $page_slug_arg = array_merge(
@@ -97,6 +113,18 @@ class Admin {
                             ]
                         ),
                     ],
+                ] );
+
+                register_rest_route( 'orpheus/v1', '/contact', [
+                    'methods'  => 'post',
+                    'callback' => array($this, 'rest_contact'),
+
+                ] );
+
+                register_rest_route( 'orpheus/v1', '/social', [
+                    'methods'  => 'get',
+                    'callback' => array($this, 'rest_social'),
+
                 ] );
 
 
@@ -207,6 +235,32 @@ class Admin {
      */
     function rest_get_post( WP_REST_Request $request ) {
         return $this->rest_get_content( $request, 'post', __FUNCTION__ );
+    }
+    /**
+     * Respond to a REST API request to get contact data.
+     *
+     * @param WP_REST_Request $request Request.
+     * @return WP_REST_Response
+     */
+    function rest_contact( WP_REST_Request $request ) {
+        $name = $request['name'];
+        $email = $request['email'];
+    return "Your contact request had the title " . $email . " and name ". $name;
+    }
+
+    /**
+     * Respond to a REST API request to get Social data.
+     *
+     * @param WP_REST_Request $request Request.
+     * @return WP_REST_Response
+     */
+    function rest_social( WP_REST_Request $request ) {
+        $socials   =   array(
+            'facebook'  => esc_attr( get_option( 'orpheus_facebook' ) ),
+            'twitter'   => esc_attr( get_option( 'orpheus_twitter' ) ),
+            'google'    => esc_attr( get_option( 'orpheus_google' ) ),
+        );
+    return $socials;
     }
 
 

@@ -1,20 +1,6 @@
-// import React, { Component } from "react";
 import Link from "next/link";
 import { Button } from "reactstrap";
 import { Container } from "reactstrap";
-
-// import bgImage from "../static/images/marketing3.png";
-// import bgImage from "../static/images/marketing3.png";
-
-const blogStyle = {
-  backgroundImage: `url("../static/images/marketing3.png")`,
-  padding: "0% 12% 0% 12%",
-  backgroundPosition: "top left",
-  backgroundRepeat: "no-repeat"
-};
-const pageStyle = {
-  marginBottom: 10
-};
 
 const Blog = props => {
   const blogPosts = props.blogs.map((blogPost, index) => {

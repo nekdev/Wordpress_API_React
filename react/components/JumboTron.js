@@ -6,8 +6,11 @@ const TextRotate = require("react-rotating-text");
 
 const JumboTron = () => {
   return (
-    <Jumbotron fluid>
-      <h2 className="display-4 text-uppercase text-center" data-type="content">
+    <Jumbotron fluid className="table">
+      <h2
+        className="display-4 text-uppercase text-center table-cell"
+        data-type="content"
+      >
         CONCEPT SHOP <br />
         <span className="text-center creative mb-5 text-uppercase">
           MARKETING & ADVERTISING
@@ -26,15 +29,14 @@ const JumboTron = () => {
             />
           </span>
         </div>
+        <p className="lead">
+          <Link as={`/page/concept`} href={`/post?slug=about&apiRoute=page`}>
+            <Button className="btn btn-outline-light btn-lg mt-5 bt-enter">
+              FIND OUT MORE
+            </Button>
+          </Link>
+        </p>
       </h2>
-
-      <p className="lead">
-        <Link as={`/page/concept`} href={`/post?slug=concept&apiRoute=page`}>
-          <Button className="btn btn-outline-light btn-lg mt-5 bt-enter">
-            FIND OUT MORE
-          </Button>
-        </Link>
-      </p>
     </Jumbotron>
   );
 };

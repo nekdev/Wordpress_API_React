@@ -8,6 +8,7 @@ import Blog from "../components/Blog";
 import { Config } from "../config.js";
 import { Container } from "reactstrap";
 import HeaderImage from "../components/HeaderImage";
+import Contact from "../components/Contact";
 
 const blogStyle = {
   backgroundImage: `url("../static/images/marketing3.png")`,
@@ -28,24 +29,48 @@ class Post extends Component {
       `${Config.apiUrl}/wp-json/orpheus/v1/${apiRoute}?slug=${slug}`
     );
     const post = await res.json();
-    return { blogPosts, post };
+    const apiroute = apiRoute;
+    return { blogPosts, post, apiroute };
   }
 
   render() {
     if (!this.props.post.title) return <Error statusCode={404} />;
+    // const apiRoute = this.props.apiroute;
     if (this.props.url.asPath === "/page/blog") {
       const blogPosts = this.props.blogPosts;
       return (
         <Layout>
-          <Menu menu={this.props.headerMenu} />
+          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
           <HeaderImage headerImage={this.props.post} />
           <Blog blogs={blogPosts} />
+        </Layout>
+      );
+    } else if (this.props.url.asPath === "/page/contact") {
+      return (
+        <Layout>
+          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
+          <HeaderImage headerImage={this.props.post} />
+          <Contact />
+        </Layout>
+      );
+    } else if (this.props.apiroute === "post") {
+      return (
+        <Layout>
+          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
+          <HeaderImage headerImage={this.props.post} />
+          <Container
+            className="page-content"
+            style={blogStyle}
+            dangerouslySetInnerHTML={{
+              __html: this.props.post.content.rendered
+            }}
+          />
         </Layout>
       );
     } else {
       return (
         <Layout>
-          <Menu menu={this.props.headerMenu} />
+          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
           <HeaderImage headerImage={this.props.post} />
           <Container
             className="page-content"

@@ -1,19 +1,17 @@
 import Link from "next/link";
-
-const hrStyle = {
-  marginTop: 75
-};
-
+import Social from "./Social";
 const Footer = () => (
-  <div>
-    <hr style={hrStyle} />
-    <p>
-      ❤️{" "}
-      <Link href="https://github.com/aristech">
-        <a>Made by Aristech</a>
-      </Link>
-    </p>
-  </div>
+  <footer>
+    <div className="footer-elements">
+      <Social />
+      <p>
+        <simple-svg data-icon="et-heart" />{" "}
+        <Link href="https://github.com/aristech">
+          <a>Made by Aristech</a>
+        </Link>
+      </p>
+    </div>
+  </footer>
 );
 
 export default Footer;

@@ -18,12 +18,15 @@ const linkStyle = {
 };
 
 const logoStyle = {
-  maxWidth: 250
+  maxWidth: "10rem"
 };
 
 class Menu extends Component {
+  navRef = React.createRef();
+
   state = {
-    isOpen: false
+    isOpen: false,
+    isSticky: "fixed-top"
   };
 
   toggle = () => {
@@ -31,6 +34,28 @@ class Menu extends Component {
       isOpen: !this.state.isOpen
     });
   };
+  // handleScroll = () => {
+  //   const navRef = this.navRef.current;
+  //   const rect = navRef.getBoundingClientRect();
+  //   console.log(rect.top);
+  //   if (rect.top < -300) {
+  //     this.setState({
+  //       isSticky: "fixed-top"
+  //     });
+  //   } else {
+  //     this.setState({
+  //       isSticky: ""
+  //     });
+  //   }
+  // };
+  componentDidMount() {
+    // console.log(this.props.url.asPath);
+    // console.log(this);
+    window.addEventListener("scroll", this.handleScroll);
+  }
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
+  }
 
   getSlug(url) {
     const parts = url.split("/");
@@ -38,24 +63,41 @@ class Menu extends Component {
   }
 
   render() {
+    let classes = null;
     const menuItems = this.props.menu.items.map((item, index) => {
       const slug = this.getSlug(item.url);
       const actualPage = item.object === "category" ? "category" : "post";
+      const activePage = "/" + item.object + "/" + slug;
+      const active = this.props.active === activePage ? "active" : "";
+      ("use strict");
+      classes = `${active} hvr-underline-from-center`;
+
       return (
-        <NavItem key={index}>
+        <NavItem key={item.ID}>
           <Link
             as={`/${item.object}/${slug}`}
             href={`/${actualPage}?slug=${slug}&apiRoute=${item.object}`}
           >
-            <NavLink style={linkStyle}>{item.title}</NavLink>
+            <NavLink className={classes} menuid={item.ID}>
+              {item.title}
+            </NavLink>
           </Link>
         </NavItem>
       );
     });
-
+    const indexClass = `${
+      this.props.active === "/" ? "active" : ""
+    } hvr-underline-from-center`;
     return (
-      <div>
-        <Navbar fixed="top" color="#000" dark expand="md" role="navigation">
+      <div id="navigation" ref={this.navRef}>
+        <Navbar
+          className={this.state.isSticky}
+          onScroll={this.handleScroll}
+          color="#000"
+          dark
+          expand="md"
+          role="navigation"
+        >
           <NavbarBrand href="/">
             <Media
               object
@@ -69,7 +111,9 @@ class Menu extends Component {
             <Nav className="ml-auto" navbar>
               <NavItem>
                 <Link href="/">
-                  <NavLink style={linkStyle}>Home</NavLink>
+                  <NavLink className={indexClass} style={linkStyle}>
+                    Home
+                  </NavLink>
                 </Link>
               </NavItem>
               {menuItems}

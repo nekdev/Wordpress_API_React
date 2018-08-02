@@ -25,6 +25,61 @@ body {
     text-align: center;
   }
 }
+#navigation {
+  .fixed-top {
+    top: 0;
+    width: inherit;
+    z-index: 1030;
+    padding: 0 1rem;
+    transition: top 1s linear;
+    background-color: #0000007d;
+  }
+  .navbar {
+    .navbar-collapse {
+      .navbar-nav {
+        .nav-item {
+          padding: 0 1.5rem;
+          font-size: 1.3rem;
+          font-weight: 600;
+          .nav-link {
+            &.hvr-underline-from-center {
+              cursor: pointer;
+              display: inline-block;
+              vertical-align: middle;
+              -webkit-transform: perspective(1px) translateZ(0);
+              transform: perspective(1px) translateZ(0);
+              box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+              position: relative;
+              overflow: hidden;
+            }
+            &.hvr-underline-from-center:before {
+              content: "";
+              position: absolute;
+              z-index: -1;
+              left: 51%;
+              right: 51%;
+              bottom: 0;
+              background: #fff;
+              height: 3px;
+              -webkit-transition-property: left, right;
+              transition-property: left, right;
+              -webkit-transition-duration: 0.3s;
+              transition-duration: 0.3s;
+              -webkit-transition-timing-function: ease-out;
+              transition-timing-function: ease-out;
+            }
+            &.hvr-underline-from-center:hover:before,
+            &.hvr-underline-from-center:focus:before,
+            &.hvr-underline-from-center:active:before {
+              left: 0;
+              right: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
 .wrapper {
   padding: 0;
   .jumbotron {
@@ -38,8 +93,8 @@ body {
     position: relative;
     z-index: 5;
     max-height: 100vh;
-    margin-top: 106px;
-    background-color: transparent !important;
+    // margin-top: 106px;
+    background-color: $themeColor-Dark;
     text-align: center;
     .text-uppercase {
       .creative {
@@ -78,6 +133,7 @@ body {
   position: relative;
   // z-index: 1;
   max-height: 100vh;
+  background-color: $themeColor-Dark;
 }
 
 .page-content {
@@ -168,6 +224,13 @@ body {
     }
   }
 }
+footer {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-top: 3rem;
+}
+
 @include media-breakpoint-up(sm) {
   html {
     font-size: 1rem;

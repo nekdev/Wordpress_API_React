@@ -105,10 +105,15 @@ EOF'
         wp acf sync
         wp rewrite flush --hard
         wp rewrite structure "/%postname%/"
+        wp post create --post_type=page --post_status=publish --post_name=about --post_title="About";
+        wp post create --post_type=page --post_status=publish --post_name=clients --post_title="Clients";
+        wp post create --post_type=page --post_status=publish --post_name=blog --post_title="Blog";
+        wp post create --post_type=page --post_status=publish --post_name=contact --post_title="Contact";
         wp menu create "Header Menu"
-        wp menu item add-post header-menu 1
-        wp menu item add-post header-menu 2
-        wp menu item add-term header-menu category 1
+        wp menu item add-post header-menu 4;
+        wp menu item add-post header-menu 5;
+        wp menu item add-post header-menu 6
+        wp menu item add-post header-menu 7
         wp menu location assign header-menu header-menu
         bash -c 'cat << EOF > .htaccess
 <IfModule mod_rewrite.c>

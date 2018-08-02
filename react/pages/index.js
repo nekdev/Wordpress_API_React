@@ -27,6 +27,7 @@ class Index extends Component {
   }
 
   render() {
+    // console.log(this);
     const posts = this.props.posts.map((post, index) => {
       return (
         <ul key={index}>
@@ -57,7 +58,7 @@ class Index extends Component {
     });
     return (
       <Layout>
-        <Menu menu={this.props.headerMenu} />
+        <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
         <Container fluid className="wrapper">
           <JumboTron />
         </Container>
