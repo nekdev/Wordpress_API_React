@@ -15,6 +15,9 @@ body {
   li {
     list-style: none;
   }
+  p {
+    line-height: 1.5;
+  }
 }
 .table {
   display: table;
@@ -33,7 +36,7 @@ body {
     top: 0;
     width: inherit;
     z-index: 1030;
-    padding: 0 1rem;
+    padding: 1rem;
     transition: top 1s linear;
     background-color: #0000007d;
   }
@@ -41,8 +44,8 @@ body {
     .navbar-collapse {
       .navbar-nav {
         .nav-item {
-          padding: 0 1.5rem;
-          font-size: 1.3rem;
+          padding: 0 1rem;
+          // font-size: 1.3rem;
           font-weight: 600;
           .nav-link {
             &.hvr-underline-from-center {
@@ -86,7 +89,6 @@ body {
 .wrapper {
   padding: 0;
   .jumbotron {
-    background-image: url(../../static/images/about.png);
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -99,6 +101,9 @@ body {
     // margin-top: 106px;
     background-color: $themeColor-Dark;
     text-align: center;
+    .jumbo-title {
+      font-weight: 600;
+    }
     .text-uppercase {
       .creative {
         font-size: 2.6rem !important;
@@ -246,8 +251,8 @@ footer {
           margin: 0 1rem;
           a {
             .simple-svg {
-              width: 2em;
-              height: 2em;
+              width: 1.7em;
+              height: 1.7em;
 
               path {
                 fill: #847c71;
@@ -296,19 +301,10 @@ footer {
 }
 
 @include media-breakpoint-up(sm) {
-  html {
-    font-size: 1rem;
-  }
 }
 
 @include media-breakpoint-up(md) {
-  html {
-    font-size: 1.1rem;
-  }
 }
 
 @include media-breakpoint-up(lg) {
-  html {
-    font-size: 1.2rem;
-  }
 }

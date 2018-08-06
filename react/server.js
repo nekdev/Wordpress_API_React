@@ -6,44 +6,53 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 app
-    .prepare()
-    .then(() => {
-        const server = express();
+  .prepare()
+  .then(() => {
+    const server = express();
 
-        server.get("/post/:slug", (req, res) => {
-            const actualPage = "/post";
-            const queryParams = { slug: req.params.slug, apiRoute: "post" };
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get("/page/:slug", (req, res) => {
-            const actualPage = "/post";
-            const queryParams = { slug: req.params.slug, apiRoute: "page" };
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get("/category/:slug", (req, res) => {
-            const actualPage = "/category";
-            const queryParams = { slug: req.params.slug };
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get("/_preview/:id/:wpnonce", (req, res) => {
-            const actualPage = "/preview";
-            const queryParams = { id: req.params.id, wpnonce: req.params.wpnonce };
-            app.render(req, res, actualPage, queryParams);
-        });
-
-        server.get("*", (req, res) => {
-            return handle(req, res);
-        });
-
-        server.listen(3000, err => {
-            if (err) throw err;
-            console.log("> Ready on http://localhost:3000");
-        });
-    })
-    .catch(ex => {
-        console.error(ex.stack);
-        process.exit(1);
+    server.get("/post/:slug", (req, res) => {
+      const actualPage = "/post";
+      const queryParams = { slug: req.params.slug, apiRoute: "post" };
+      app.render(req, res, actualPage, queryParams);
     });
+
+    server.get("/page/:slug", (req, res) => {
+      const actualPage = "/post";
+      const queryParams = { slug: req.params.slug, apiRoute: "page" };
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get("/category/:slug", (req, res) => {
+      const actualPage = "/category";
+      const queryParams = { slug: req.params.slug };
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get("/_preview/:id/:wpnonce", (req, res) => {
+      const actualPage = "/preview";
+      const queryParams = { id: req.params.id, wpnonce: req.params.wpnonce };
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get("*", (req, res) => {
+      return handle(req, res);
+    });
+
+    server.get("./offline/serviceWorker.js", (req, res) => {
+      if (pathname === "/") {
+        res.setHeader("content-type", "text/javascript");
+        createReadStream("./offline/serviceWorker.js").pipe(res);
+      } else {
+        handle(req, res, parsedUrl);
+      }
+    });
+
+    server.listen(3000, err => {
+      if (err) throw err;
+      console.log("> Ready on http://localhost:3000");
+    });
+  })
+  .catch(ex => {
+    console.error(ex.stack);
+    process.exit(1);
+  });

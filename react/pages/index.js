@@ -25,6 +25,15 @@ class Index extends Component {
     const pages = await pagesRes.json();
     return { page, posts, pages };
   }
+  // componentDidMount = () => {
+  //   if ("serviceWorker" in navigator) {
+  //     navigator.serviceWorker
+  //       .register("/")
+  //       .catch(err => console.error("Service worker registration failed", err));
+  //   } else {
+  //     console.log("Service worker not supported");
+  //   }
+  // };
 
   render() {
     // console.log(this);
@@ -58,9 +67,13 @@ class Index extends Component {
     });
     return (
       <Layout>
-        <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
+        <Menu
+          menu={this.props.headerMenu}
+          settings={this.props.settings}
+          active={this.props.url.asPath}
+        />
         <Container fluid className="wrapper">
-          <JumboTron />
+          <JumboTron settings={this.props.settings} />
         </Container>
       </Layout>
     );

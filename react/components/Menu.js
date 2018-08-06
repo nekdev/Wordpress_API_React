@@ -13,12 +13,8 @@ import {
 } from "reactstrap";
 
 const linkStyle = {
-  marginRight: 15,
+  textTransform: "uppercase",
   cursor: "pointer"
-};
-
-const logoStyle = {
-  maxWidth: "10rem"
 };
 
 class Menu extends Component {
@@ -34,23 +30,8 @@ class Menu extends Component {
       isOpen: !this.state.isOpen
     });
   };
-  // handleScroll = () => {
-  //   const navRef = this.navRef.current;
-  //   const rect = navRef.getBoundingClientRect();
-  //   console.log(rect.top);
-  //   if (rect.top < -300) {
-  //     this.setState({
-  //       isSticky: "fixed-top"
-  //     });
-  //   } else {
-  //     this.setState({
-  //       isSticky: ""
-  //     });
-  //   }
-  // };
+
   componentDidMount() {
-    // console.log(this.props.url.asPath);
-    // console.log(this);
     window.addEventListener("scroll", this.handleScroll);
   }
   componentWillUnmount() {
@@ -78,7 +59,7 @@ class Menu extends Component {
             as={`/${item.object}/${slug}`}
             href={`/${actualPage}?slug=${slug}&apiRoute=${item.object}`}
           >
-            <NavLink className={classes} menuid={item.ID}>
+            <NavLink className={classes} menuid={item.ID} style={linkStyle}>
               {item.title}
             </NavLink>
           </Link>
@@ -101,9 +82,9 @@ class Menu extends Component {
           <NavbarBrand href="/">
             <Media
               object
-              src="../static/images/logo.svg"
+              src={this.props.settings.logo}
               alt="Orpheus"
-              style={logoStyle}
+              style={{ maxWidth: this.props.settings.logoSize }}
             />
           </NavbarBrand>
           <NavbarToggler onClick={this.toggle} />

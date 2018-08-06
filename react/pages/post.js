@@ -40,7 +40,11 @@ class Post extends Component {
       const blogPosts = this.props.blogPosts;
       return (
         <Layout>
-          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
+          <Menu
+            menu={this.props.headerMenu}
+            settings={this.props.settings}
+            active={this.props.url.asPath}
+          />
           <HeaderImage headerImage={this.props.post} />
           <Blog blogs={blogPosts} />
         </Layout>
@@ -48,7 +52,11 @@ class Post extends Component {
     } else if (this.props.url.asPath === "/page/contact") {
       return (
         <Layout>
-          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
+          <Menu
+            menu={this.props.headerMenu}
+            settings={this.props.settings}
+            active={this.props.url.asPath}
+          />
           <HeaderImage headerImage={this.props.post} />
           <Contact />
         </Layout>
@@ -56,7 +64,11 @@ class Post extends Component {
     } else if (this.props.apiroute === "post") {
       return (
         <Layout>
-          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
+          <Menu
+            menu={this.props.headerMenu}
+            settings={this.props.settings}
+            active={this.props.url.asPath}
+          />
           <HeaderImage headerImage={this.props.post} />
           <Container
             className="page-content"
@@ -70,7 +82,11 @@ class Post extends Component {
     } else {
       return (
         <Layout>
-          <Menu menu={this.props.headerMenu} active={this.props.url.asPath} />
+          <Menu
+            menu={this.props.headerMenu}
+            settings={this.props.settings}
+            active={this.props.url.asPath}
+          />
           <HeaderImage headerImage={this.props.post} />
           <Container
             className="page-content"

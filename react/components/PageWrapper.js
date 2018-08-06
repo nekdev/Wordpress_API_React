@@ -8,16 +8,15 @@ const PageWrapper = Comp =>
         `${Config.apiUrl}/wp-json/menus/v1/menus/header-menu`
       );
       const headerMenu = await headerMenuRes.json();
-      // const mediaRes = await fetch(
-      //   `${Config.apiUrl}/wp-json/wp/v2/media?_embed`
-      // );
-      // const media = await mediaRes.json();
-      // const logo = media.find(log => {
-      //   return log.slug == "logo";
-      // });
+      //get theme settings
+      const settingsRes = await fetch(
+        `${Config.apiUrl}/wp-json/orpheus/v1/settings`
+      );
+      const settings = await settingsRes.json();
+
       return {
         headerMenu,
-        // logo,
+        settings,
         ...(Comp.getInitialProps ? await Comp.getInitialProps(args) : null)
       };
     }

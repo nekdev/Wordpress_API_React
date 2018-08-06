@@ -25,6 +25,7 @@
     "next": "latest",
     "react": "^16.4.1",
     "react-rotating-text": "^1.2.1",
+    "react-service-worker": "^0.1.0",
     "reactstrap": "^6.3.0"
   },
   "devDependencies": {

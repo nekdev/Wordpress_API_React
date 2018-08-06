@@ -4,6 +4,7 @@ import { Config } from "../config.js";
 import { Container, Button, Form, FormGroup, Input } from "reactstrap";
 
 class Contact extends Component {
+  formRef = React.createRef();
   nameRef = React.createRef();
   emailRef = React.createRef();
   businessNameRef = React.createRef();
@@ -12,10 +13,6 @@ class Contact extends Component {
   valueRef = React.createRef();
   textareaRef = React.createRef();
 
-  // onChange = e => {
-  //   console.log(e.target);
-  //   this.setState({ [e.target.name]: e.target.value });
-  // };
   submitForm = e => {
     e.preventDefault();
     // get our form data out of state
@@ -29,6 +26,7 @@ class Contact extends Component {
       textarea: this.textareaRef.current.value
     };
 
+    const form = this.formRef;
     fetch(`${Config.apiUrl}/wp-json/orpheus/v1/contact`, {
       method: "POST",
       headers: {
@@ -36,13 +34,36 @@ class Contact extends Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(data)
-    });
+    })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(myJson) {
+        if (myJson === "message sent") {
+          console.log(myJson);
+        } else {
+          console.log("error");
+        }
+      });
+
+    this.nameRef.current.value = "";
+    this.emailRef.current.value = "";
+    this.businessNameRef.current.value = "";
+    this.phoneRef.current.value = "";
+    this.websiteRef.current.value = "";
+    this.valueRef.current.value = "";
+    this.textareaRef.current.value = "";
   };
 
   render() {
     return (
       <Container className="page-content">
-        <Form onSubmit={this.submitForm}>
+        <Form
+          className="contact-form"
+          style={{ padding: "0 10%" }}
+          onSubmit={this.submitForm}
+          ref={this.formRef}
+        >
           <FormGroup>
             <input
               type="text"

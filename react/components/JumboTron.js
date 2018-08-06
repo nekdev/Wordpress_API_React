@@ -4,15 +4,21 @@ import { Jumbotron, Button } from "reactstrap";
 
 const TextRotate = require("react-rotating-text");
 
-const JumboTron = () => {
+const JumboTron = props => {
   return (
-    <Jumbotron fluid className="table">
+    <Jumbotron
+      fluid
+      className="table"
+      style={{ backgroundImage: `url(${props.settings.headerImage})` }}
+    >
       <h2
         className="display-4 text-uppercase text-center table-cell"
         data-type="content"
       >
-        CONCEPT SHOP <br />
-        <span className="text-center creative mb-5 text-uppercase">
+        <span className="jumbo-title">
+          CONCEPT SHOP <br />
+        </span>
+        <span className="text-center creative mb-5 text-uppercase jumbo-subtitle">
           MARKETING & ADVERTISING
         </span>
         <div>
@@ -30,7 +36,7 @@ const JumboTron = () => {
           </span>
         </div>
         <p className="lead">
-          <Link as={`/page/concept`} href={`/post?slug=about&apiRoute=page`}>
+          <Link as={`/page/concept`} href={`/post?slug=concept&apiRoute=page`}>
             <Button className="btn btn-outline-light btn-lg mt-5 bt-enter">
               FIND OUT MORE
             </Button>
