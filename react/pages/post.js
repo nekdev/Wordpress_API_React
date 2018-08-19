@@ -9,6 +9,7 @@ import { Config } from "../config.js";
 import { Container } from "reactstrap";
 import HeaderImage from "../components/HeaderImage";
 import Contact from "../components/Contact";
+import Companys from "../components/Companys";
 
 const blogStyle = {
   backgroundImage: `url("../static/images/marketing3.png")`,
@@ -25,12 +26,16 @@ class Post extends Component {
     const { slug, apiRoute } = context.query;
     const postsRes = await fetch(`${Config.apiUrl}/wp-json/wp/v2/posts?_embed`);
     const blogPosts = await postsRes.json();
+    const compRes = await fetch(
+      `${Config.apiUrl}/wp-json/wp/v2/companys?_embed`
+    );
+    const companys = await compRes.json();
     const res = await fetch(
       `${Config.apiUrl}/wp-json/orpheus/v1/${apiRoute}?slug=${slug}`
     );
     const post = await res.json();
     const apiroute = apiRoute;
-    return { blogPosts, post, apiroute };
+    return { blogPosts, companys, post, apiroute };
   }
 
   render() {
@@ -59,6 +64,19 @@ class Post extends Component {
           />
           <HeaderImage headerImage={this.props.post} />
           <Contact />
+        </Layout>
+      );
+    } else if (this.props.url.asPath === "/page/delivery") {
+      const companys = this.props.companys;
+      return (
+        <Layout>
+          <Menu
+            menu={this.props.headerMenu}
+            settings={this.props.settings}
+            active={this.props.url.asPath}
+          />
+          <HeaderImage headerImage={this.props.post} />
+          <Companys companys={companys} />
         </Layout>
       );
     } else if (this.props.apiroute === "post") {

@@ -43,13 +43,24 @@ class Admin {
         add_filter( 'wp_terms_checklist_args', array($this, 'taxonomy_ontop_filter' ));
         add_filter( 'preview_post_link', array($this, 'set_headless_preview_link' ));
         add_action( 'admin_menu',array($this->MenuOptions, 'admin_menu_option'));
-        add_action( 'init', array($this->Settings,'blog_cpt'));
-        // add_filter( 'manage_anila_contact_posts_columns', array($this->Settings, 'set_contact_columns'));
         remove_filter( 'the_excerpt', 'wpautop' );
-        // add_action( 'manage_anila_contact_posts_custom_column', array($this->Settings, 'contact_custom_column'), 10, 2);
-        // add_action( 'add_meta_boxes', array($this->Settings,'contact_add_metabox' ));
-        // add_action( 'save_post', array($this->Settings, 'anila_save_email_data'));
-        // add_shortcode( 'booking_form', array($this->shortcodes, 'booking_form'));
+        add_action( 'init', array($this->Settings,'company_taxonomies'));
+        if( @$this->Settings->contact == 1) {
+            add_action( 'init', array($this->Settings,'contact_cpt'));
+            add_filter( 'manage_orpheus_contact_posts_columns', array($this->Settings, 'set_contact_columns'));
+            add_action( 'manage_orpheus_contact_posts_custom_column', array($this->Settings, 'contact_custom_column'), 10, 2);
+            add_action( 'add_meta_boxes', array($this->Settings,'contact_add_metabox' ));
+            add_action( 'save_post', array($this->Settings, 'orpheus_save_email_data'));
+            add_shortcode( 'booking_form', array($this->shortcodes, 'booking_form'));
+        }
+        if( @$this->Settings->delivery == 1) {
+            add_action( 'init', array($this->Settings,'delivery_cpt'));
+            add_filter( 'manage_orpheus_delivery_posts_columns', array($this->Settings, 'set_delivery_columns'));
+            add_action( 'manage_orpheus_delivery_posts_custom_column', array($this->Settings, 'delivery_custom_column'), 10, 2);
+            add_action( 'add_meta_boxes', array($this->Settings,'delivery_add_metabox' ));
+            // add_action( 'save_post', array($this->Settings, 'orpheus_save_email_data'));
+            // add_shortcode( 'booking_form', array($this->shortcodes, 'booking_form'));
+        }
 
 
         add_action( 'rest_api_init', function () {
@@ -79,6 +90,13 @@ class Admin {
                         'description' => 'String representing a valid WordPress post slug',
                     ]
                 );
+                $company_slug_arg = array_merge(
+                    $slug_arg,
+                    [
+                        "name" => "Orpheus",
+                        'description' => 'String representing a valid Company slug',
+                    ]
+                );
                 $contact_slug_arg = array_merge(
                     $slug_arg,
                     [
@@ -90,7 +108,7 @@ class Admin {
                     $slug_arg,
                     [
                         "name" => "Orpheus",
-                        'description' => 'Socials',
+                        'description' => 'Social links',
                     ]
                 );
                 $page_slug_arg = array_merge(
@@ -107,6 +125,19 @@ class Admin {
                     'args' => [
                         'slug' => array_merge(
                             $post_slug_arg,
+                            [
+                                'required' => true,
+                            ]
+                        ),
+                    ],
+                ] );
+
+                register_rest_route( 'orpheus/v1', '/company', [
+                    'methods'  => 'GET',
+                    'callback' => array($this, 'rest_get_company'),
+                    'args' => [
+                        'slug' => array_merge(
+                            $delivery_slug_arg,
                             [
                                 'required' => true,
                             ]
@@ -162,6 +193,17 @@ class Admin {
                         return current_user_can( 'edit_posts' );
                     },
                 ] );
+
+                register_rest_field(
+                    array ('post', 'page', 'company'), // Where to add the field (Here, blog posts. Could be an array)
+                    'featured_image_src', // Name of new field (You can call this anything)
+                    array(
+                        'get_callback'    => array ($this, 'get_image_src'),
+                        'update_callback' => null,
+                        'schema'          => null,
+                         )
+                    );
+
             }
         );
 
@@ -241,6 +283,17 @@ class Admin {
     function rest_get_post( WP_REST_Request $request ) {
         return $this->rest_get_content( $request, 'post', __FUNCTION__ );
     }
+
+    /**
+     * Respond to a REST API request to get delivery data.
+     *
+     * @param WP_REST_Request $request Request.
+     * @return WP_REST_Response
+     */
+    function rest_get_company( WP_REST_Request $request ) {
+        return $this->rest_get_content( $request, 'company', __FUNCTION__ );
+    }
+
     /**
      * Respond to a REST API request to get contact data.
      *
@@ -323,6 +376,7 @@ class Admin {
             [
                 'post',
                 'page',
+                'company',
             ],
             true
         );
@@ -354,6 +408,15 @@ class Admin {
         return new WP_REST_Response( $response );
     }
 
+    //Rest get featured image
+    function get_image_src( $object, $field_name, $request ) {
+        $feat_img_array = wp_get_attachment_image_src(
+          $object['featured_media'], // Image attachment ID
+          'full',  // Size.  Ex. "thumbnail", "large", "full", etc..
+          true // Whether the image should be treated as an icon.
+        );
+        return $feat_img_array[0];
+      }
     /**
      * Returns a post or page given a slug. Returns false if no post matches.
      *
@@ -367,6 +430,7 @@ class Admin {
             [
                 'post',
                 'page',
+                'company',
             ],
             true
         );

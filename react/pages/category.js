@@ -44,8 +44,12 @@ class Category extends Component {
     });
     return (
       <Layout>
-        <Menu menu={this.props.headerMenu} />
-        <h1>{this.props.categories[0].name} Posts</h1>
+        <Menu
+          menu={this.props.headerMenu}
+          settings={this.props.settings}
+          active={this.props.url.asPath}
+        />
+        <h1>{this.props.categories[0].name}</h1>
         {posts}
       </Layout>
     );

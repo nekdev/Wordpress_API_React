@@ -19,12 +19,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@material-ui/core": "^1.4.3",
+    "@material-ui/icons": "^2.0.1",
     "bootstrap": "^4.1.1",
     "express": "^4.16.2",
     "isomorphic-unfetch": "^2.0.0",
     "next": "latest",
     "react": "^16.4.1",
+    "react-loading": "^2.0.3",
     "react-rotating-text": "^1.2.1",
+    "react-scrollspy": "^3.3.5",
     "react-service-worker": "^0.1.0",
     "reactstrap": "^6.3.0"
   },

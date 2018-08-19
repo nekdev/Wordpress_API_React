@@ -41,6 +41,7 @@ class Settings
                         );
 
         $this   ->  contact             =   get_option( 'orpheus_activate_contact' );
+        $this   ->  delivery             =   get_option( 'orpheus_activate_delivery' );
         $this   ->  header              =   get_option( 'orpheus_header_type' );
 
     }
@@ -69,12 +70,15 @@ class Settings
 
         //Contact Form Options
         register_setting( 'orpheus-contact-group', 'orpheus_activate_contact' );
+        register_setting( 'orpheus-contact-group', 'orpheus_activate_delivery' );
         register_setting( 'orpheus-calendar-group', 'orpheus_calendar' );
 
         add_settings_section( 'contact-section', '', '', 'orpheus_contact' );
+        // add_settings_section( 'delivery-section', '', '', 'orpheus_contact' );
         add_settings_section( 'calendar-section', 'Calendar', '', 'orpheus_contact' );
 
         add_settings_field( 'activate-form', 'Add or remove custom contact form', array($this, 'activate_contact'), 'orpheus_contact', 'contact-section' );
+        add_settings_field( 'activate-delivery', 'Add or remove delivery', array($this, 'activate_delivery'), 'orpheus_contact', 'contact-section' );
         add_settings_field( 'calendar-area', 'Booking visualisation', array($this, 'calendar_callback'), 'orpheus_contact', 'contact-section' );
 
 
@@ -164,8 +168,15 @@ class Settings
     }
     function sticky()
     {
-        $checked = ( @$this->sticky == 1 ? 'checked' : '' );
-        echo '<input type="checkbox" class="ios8-switch" id="sticky" name="orpheus_sticky" value="1" '.$checked.' /> <label for="sticky">Sticky Menu</label>';
+        $formats = array( 'static', 'fixed', 'sticky', 'absolute' );
+        $output = '<select id="sticky" name="orpheus_sticky">';
+        foreach ( $formats as $format ){
+            //echo $format;
+            $checked = ( @$this->sticky == $format ? 'selected="selected"' : '' );
+            $output .= '<option value="'. $format.'" '.$checked.' >'.ucfirst($format).'</option>';
+        }
+        $output .= '</select> <label for="sticky">Sticky Menu</label>';
+        echo $output;
     }
 
     function shade()
@@ -330,10 +341,124 @@ function orpheus_save_email_data($post_id)
 
 }
 
+
+function delivery_cpt(){
+    $labels = array(
+        'name'               => 'Company',
+        'singular_name'      => 'Company',
+        'add_new'            => 'Add Company',
+        'all_items'          => 'All Companys',
+        'add_new_item'       => 'Add Company',
+        'edit_item'          => 'Edit Company',
+        'new_item'           => 'New Company',
+        'view_item'          => 'View Company',
+        'search_item'        => 'Search Company',
+        'not_found'          => 'No items found',
+        'not_found_in_trash' => 'No items found in trash',
+        'parent_item_colon'  => 'Parent Item'
+    );
+    $args = array(
+        'labels' => $labels,
+        'public' => true,
+        'has_archive' => true,
+        'publicly_queryable' => true,
+        'query_var' => true,
+        'rewrite' => true,
+        'capability_type' => 'post',
+        'hierarchical' => false,
+        'supports' => array(
+            'title',
+            'editor',
+            'excerpt',
+            'thumbnail',
+            'revisions',
+            'comments',
+        ),
+        // 'taxonomies' => array('category', 'post_tag'),
+        'menu_icon' => 'dashicons-hammer',
+        'menu_position' => 5,
+        'exclude_from_search' => false,
+        'show_in_rest'       => true,
+        'rest_base'          => 'companys',
+        'rest_controller_class' => 'WP_REST_Posts_Controller',
+    );
+    register_post_type('company',$args);
+    }
+
+
+    function company_taxonomies() {
+    //add new taxonomy hierarchical
+    $taxonomies = array(
+		array(
+			'slug'         => 'company_type',
+			'single_name'  => 'KIND OF BUSINESS (catering, pizza etc...)',
+			'plural_name'  => 'KIND OF BUSINESS ',
+			'post_type'    => 'company',
+            'rewrite'      => array( 'slug' => 'company_type' ),
+            'rest_base'    => 'company_type',
+            'hierarchical' => false,
+
+		),
+		array(
+			'slug'         => 'Kitchen-type',
+			'single_name'  => 'Kitchen Type',
+			'plural_name'  => 'Kitchen Types',
+			'post_type'    => 'company',
+            'hierarchical' => false,
+            'rest_base'    => 'kitchen_type',
+
+		),
+		array(
+			'slug'         => 'area',
+			'single_name'  => 'Cover Area',
+			'plural_name'  => 'Cover Areas',
+            'post_type'    => 'company',
+            'hierarchical' => true,
+            'rest_base'    => 'area',
+
+		),
+	);
+	foreach( $taxonomies as $taxonomy ) {
+		$labels = array(
+			'name' => $taxonomy['plural_name'],
+			'singular_name' => $taxonomy['single_name'],
+			'search_items' =>  'Search ' . $taxonomy['plural_name'],
+			'all_items' => 'All ' . $taxonomy['plural_name'],
+			'parent_item' => 'Parent ' . $taxonomy['single_name'],
+			'parent_item_colon' => 'Parent ' . $taxonomy['single_name'] . ':',
+			'edit_item' => 'Edit ' . $taxonomy['single_name'],
+			'update_item' => 'Update ' . $taxonomy['single_name'],
+			'add_new_item' => 'Add New ' . $taxonomy['single_name'],
+			'new_item_name' => 'New ' . $taxonomy['single_name'] . ' Name',
+			'menu_name' => $taxonomy['plural_name']
+		);
+
+		$rewrite = isset( $taxonomy['rewrite'] ) ? $taxonomy['rewrite'] : array( 'slug' => $taxonomy['slug'] );
+		$hierarchical = isset( $taxonomy['hierarchical'] ) ? $taxonomy['hierarchical'] : true;
+
+		register_taxonomy( $taxonomy['slug'], $taxonomy['post_type'], array(
+			'hierarchical' => $hierarchical,
+			'labels' => $labels,
+            'show_ui' => true,
+            'show_admin_column' => true,
+			'query_var' => true,
+            'rewrite' => $rewrite,
+            'show_in_rest'  => true,
+            'rest_base' => $taxonomy['rest_base'],
+            'rest_controller_class' => 'WP_REST_Terms_Controller',
+		));
+	}
+    }
+
 function activate_contact()
 {
     $checked = ( @$this->contact == 1 ? 'checked' : '');
     echo '<input type="checkbox" class="ios8-switch" id="activate_contact" name="orpheus_activate_contact" value="1" '.$checked.' /><label for="activate_contact">Activate Mesages Plugin</label>';
+}
+function activate_delivery()
+{
+    $checked = ( @$this->delivery == 1 ? 'checked' : '');
+    echo '<input type="checkbox" class="ios8-switch" id="activate_delivery" name="orpheus_activate_delivery" value="1" '.$checked.' /><label for="activate_delivery">Activate Delivery</label>';
 }
 
 function calendar_callback()

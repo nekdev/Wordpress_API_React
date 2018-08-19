@@ -1,20 +1,35 @@
 import React, { Component } from "react";
 import Link from "next/link";
 import { Config } from "../config.js";
-import {
-  Collapse,
-  Navbar,
-  NavbarToggler,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-  Media
-} from "reactstrap";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
 
+const styles = {
+  root: {
+    flexGrow: 1
+  },
+  flex: {
+    flex: 1
+  },
+  menuButton: {
+    marginLeft: -12,
+    marginRight: 20
+  },
+  navItem: {
+    borderBottom: "2px solid #fff"
+  }
+};
 const linkStyle = {
   textTransform: "uppercase",
-  cursor: "pointer"
+  cursor: "pointer",
+  textDecoration: "none",
+  color: "#fff"
 };
 
 class Menu extends Component {
@@ -44,6 +59,7 @@ class Menu extends Component {
   }
 
   render() {
+    const st = styles;
     let classes = null;
     const menuItems = this.props.menu.items.map((item, index) => {
       const slug = this.getSlug(item.url);
@@ -54,53 +70,61 @@ class Menu extends Component {
       classes = `${active} hvr-underline-from-center`;
 
       return (
-        <NavItem key={item.ID}>
+        <Button
+          stule={st.navitem}
+          key={item.ID}
+          className={classes}
+          menuid={item.ID}
+        >
           <Link
             as={`/${item.object}/${slug}`}
             href={`/${actualPage}?slug=${slug}&apiRoute=${item.object}`}
           >
-            <NavLink className={classes} menuid={item.ID} style={linkStyle}>
+            <a style={linkStyle} className="navbar-link">
               {item.title}
-            </NavLink>
+            </a>
           </Link>
-        </NavItem>
+        </Button>
       );
     });
     const indexClass = `${
       this.props.active === "/" ? "active" : ""
     } hvr-underline-from-center`;
     return (
-      <div id="navigation" ref={this.navRef}>
-        <Navbar
-          className={this.state.isSticky}
-          onScroll={this.handleScroll}
-          color="#000"
-          dark
-          expand="md"
-          role="navigation"
+      <div id="navigation" ref={this.navRef} styles={styles.root}>
+        <AppBar
+          position={
+            this.props.settings.sticky === ""
+              ? "static"
+              : this.props.settings.sticky
+          }
         >
-          <NavbarBrand href="/">
-            <Media
-              object
-              src={this.props.settings.logo}
-              alt="Orpheus"
-              style={{ maxWidth: this.props.settings.logoSize }}
-            />
-          </NavbarBrand>
-          <NavbarToggler onClick={this.toggle} />
-          <Collapse isOpen={this.state.isOpen} navbar>
-            <Nav className="ml-auto" navbar>
-              <NavItem>
-                <Link href="/">
-                  <NavLink className={indexClass} style={linkStyle}>
+          <Toolbar>
+            {/* <IconButton
+              styles={styles.menuButton}
+              color="inherit"
+              aria-label="Menu"
+            >
+              <MenuIcon />
+            </IconButton> */}
+            <div>
+              <img
+                style={{ maxWidth: this.props.settings.logoSize }}
+                src={this.props.settings.logo}
+              />
+            </div>
+            <nav>
+              <Button className={indexClass}>
+                <Link href={"/"}>
+                  <a style={linkStyle} className="navbar-link">
                     Home
-                  </NavLink>
+                  </a>
                 </Link>
-              </NavItem>
-              {menuItems}
-            </Nav>
-          </Collapse>
-        </Navbar>
+              </Button>
+              {/* {menuItems} */}
+            </nav>
+          </Toolbar>
+        </AppBar>
       </div>
     );
   }
