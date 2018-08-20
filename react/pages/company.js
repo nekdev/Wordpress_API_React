@@ -19,7 +19,6 @@ import Tab from "@material-ui/core/Tab";
 import Hidden from "@material-ui/core/Hidden";
 import Drawer from "@material-ui/core/Drawer";
 import MenuItems from "../components/MenuItems";
-import { arrayToObject } from "../src/helpers";
 
 const drawerWidth = 240;
 
@@ -36,7 +35,8 @@ const styles = theme => ({
   appBar: {
     position: "absolute",
     marginLeft: drawerWidth,
-    backgroundColor: theme.palette.secondary.light,
+    backgroundColor: "#e1e1e1",
+
     [theme.breakpoints.up("md")]: {
       width: `calc(100% - ${drawerWidth}px)`
     }
@@ -88,7 +88,8 @@ class Company extends Component {
     },
     extra: {
       name: []
-    }
+    },
+    quantity: 1
   };
   static async getInitialProps(context) {
     const { slug } = context.query;
@@ -161,11 +162,12 @@ class Company extends Component {
     });
   };
 
-  handleModalClose = item => {
+  handleModalClose = () => {
     this.setState({
       open: false,
       ingredients: [],
-      extra: []
+      extra: [],
+      quantity: 1
     });
   };
 
@@ -173,6 +175,9 @@ class Company extends Component {
     this.setState({
       [name]: event.target.value
     });
+  };
+  quantityPlus = () => {
+    const quantity = { ...this.state.quantity };
   };
 
   render() {
@@ -260,6 +265,10 @@ class Company extends Component {
               <div className={classes.menuItems}>
                 <MenuItems
                   sections={this.state.menu}
+                  handleQuantityChange={this.handleQuantityChange}
+                  quantity={this.state.quantity}
+                  quantityMinus={this.state.quantityMinus}
+                  quantityPlus={this.state.quantityPlus}
                   ingredients={this.state.ingredients}
                   extra={this.state.extra}
                   handleInputChange={this.handleInputChange}
