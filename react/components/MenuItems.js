@@ -62,14 +62,14 @@ const style = {
 
 const MenuItems = props => {
   const classes = styles;
-  const checks = (key, value) => {
-    if (props.ingredients !== undefined) {
+  const checks = (key, value, field, field_name, handler) => {
+    if (field !== undefined) {
       return (
         <Checkbox
-          checked={props.ingredients[value.ingredient_name]}
+          checked={field[field_name]}
           disableRipple
-          onChange={props.handleIngredientsChange([value.ingredient_name])}
-          value={props.ingredients[value[key]]}
+          onChange={handler([field_name])}
+          value={field[value[key]]}
         />
       );
     } else {
@@ -88,7 +88,6 @@ const MenuItems = props => {
             </ListSubheader>
             {sectionItems.section_items.map((item, index) => (
               <ListItem key={`item-${index}-${item}`} refs={`itemRef-${index}`}>
-                {/* {this.logItem(item.extras)} */}
                 <Modal
                   aria-labelledby="simple-modal-title"
                   aria-describedby="simple-modal-description"
@@ -114,8 +113,35 @@ const MenuItems = props => {
                       {mapObject(item.ingredients, (key, value) => {
                         return (
                           <ListItem key={key} role={undefined}>
-                            <div>{checks(key, value)}</div>
+                            <div>
+                              {checks(
+                                key,
+                                value,
+                                props.ingredients,
+                                value.ingredient_name,
+                                props.handleIngredientsChange
+                              )}
+                            </div>
                             {value.ingredient_name}
+                          </ListItem>
+                        );
+                      })}
+                      {mapObject(item.extra, (key, value) => {
+                        return (
+                          <ListItem key={key} role={undefined}>
+                            <div>
+                              {checks(
+                                key,
+                                value,
+                                props.extra,
+                                value.extra_name,
+                                props.handleExtraChange
+                              )}
+                            </div>
+                            {value.extra_name}
+                            <span className="extra-price">
+                              {value.extra_price}
+                            </span>
                           </ListItem>
                         );
                       })}

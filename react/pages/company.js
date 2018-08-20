@@ -26,7 +26,7 @@ const drawerWidth = 240;
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    height: 550,
+    height: "auto",
     zIndex: 1,
     overflow: "hidden",
     position: "relative",
@@ -85,6 +85,9 @@ class Company extends Component {
     multiline: "",
     ingredients: {
       name: []
+    },
+    extra: {
+      name: []
     }
   };
   static async getInitialProps(context) {
@@ -108,12 +111,19 @@ class Company extends Component {
   };
 
   handleIngredientsChange = name => event => {
-    const ingredients = { ...this.state.ingredients };
-
     //check if exisests in state then add if not
     this.setState({
       ingredients: {
         ...this.state.ingredients,
+        [name]: event.target.checked
+      }
+    });
+  };
+  handleExtraChange = name => event => {
+    //check if exisests in state then add if not
+    this.setState({
+      extra: {
+        ...this.state.extra,
         [name]: event.target.checked
       }
     });
@@ -124,9 +134,20 @@ class Company extends Component {
         const val = v.ingredient_name;
         return val;
       });
-      var obj = ingObj.reduce((acc, cur, i) => {
+      var ingredientsObj = ingObj.reduce((acc, cur, i) => {
         i = cur;
-        acc[i] = "true";
+        acc[i] = true;
+        return acc;
+      }, {});
+    }
+    if (item.extra.length > 0) {
+      const extObj = item.extra.map(v => {
+        const val = v.extra_name;
+        return val;
+      });
+      var extraObj = extObj.reduce((acc, cur, i) => {
+        i = cur;
+        acc[i] = false;
         return acc;
       }, {});
     }
@@ -135,14 +156,16 @@ class Company extends Component {
       open: {
         [item.dish_name]: true
       },
-      ingredients: obj
+      ingredients: ingredientsObj,
+      extra: extraObj
     });
   };
 
   handleModalClose = item => {
     this.setState({
       open: false,
-      ingredients: []
+      ingredients: [],
+      extra: []
     });
   };
 
@@ -238,9 +261,11 @@ class Company extends Component {
                 <MenuItems
                   sections={this.state.menu}
                   ingredients={this.state.ingredients}
+                  extra={this.state.extra}
                   handleInputChange={this.handleInputChange}
                   multiline={this.state.multiline}
                   handleIngredientsChange={this.handleIngredientsChange}
+                  handleExtraChange={this.handleExtraChange}
                   handleModalOpen={this.handleModalOpen}
                   handleModalClose={this.handleModalClose}
                   open={this.state.open}
