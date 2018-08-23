@@ -19,6 +19,7 @@ import Tab from "@material-ui/core/Tab";
 import Hidden from "@material-ui/core/Hidden";
 import Drawer from "@material-ui/core/Drawer";
 import MenuItems from "../components/MenuItems";
+import { mapObject } from "../src/helpers";
 
 const drawerWidth = 240;
 
@@ -79,7 +80,6 @@ class Company extends Component {
     width: null,
     left: false,
     tabValue: 0,
-    hidden: "",
     open: [],
     mobileOpen: false,
     multiline: "",
@@ -89,7 +89,8 @@ class Company extends Component {
     extra: {
       name: []
     },
-    quantity: 1
+    quantity: 1,
+    order: []
   };
   static async getInitialProps(context) {
     const { slug } = context.query;
@@ -176,13 +177,52 @@ class Company extends Component {
       [name]: event.target.value
     });
   };
+  quantityMinus = () => {
+    let quantity = this.state.quantity;
+    quantity = quantity - 1;
+    if (quantity <= 0) {
+      return;
+    }
+    this.setState({ quantity });
+  };
   quantityPlus = () => {
-    const quantity = { ...this.state.quantity };
+    let quantity = this.state.quantity;
+    quantity = quantity + 1;
+    this.setState({ quantity });
+  };
+
+  addToOrder = item => {
+    let extraPrice = 0;
+    if (this.state.extra) {
+      const extraName = Object.keys(this.state.extra).filter(key => {
+        return this.state.extra[key];
+      });
+      let filtered = item.extra.filter(i => {
+        return extraName.indexOf(i.extra_name) !== -1;
+      });
+      const mapped = filtered.map(i => {
+        let prices = parseFloat(i.extra_price);
+        return prices;
+      });
+      extraPrice = mapped.reduce((a, b) => a + b, 0);
+    }
+
+    const orderItems = {
+      name: item.dish_name,
+      ingredients: this.state.ingredients,
+      quantity: this.state.quantity,
+      extras: this.state.extra,
+      price: this.state.quantity * (parseFloat(item.dish_price) + extraPrice)
+    };
+
+    this.setState({
+      order: [...this.state.order, orderItems],
+      open: false
+    });
   };
 
   render() {
     const { classes, theme } = this.props;
-    const hide = this.state.hidden;
     const { tabValue } = this.state;
     const categories = this.state.menu.map((category, index) => {
       return (
@@ -267,8 +307,8 @@ class Company extends Component {
                   sections={this.state.menu}
                   handleQuantityChange={this.handleQuantityChange}
                   quantity={this.state.quantity}
-                  quantityMinus={this.state.quantityMinus}
-                  quantityPlus={this.state.quantityPlus}
+                  quantityMinus={this.quantityMinus}
+                  quantityPlus={this.quantityPlus}
                   ingredients={this.state.ingredients}
                   extra={this.state.extra}
                   handleInputChange={this.handleInputChange}
@@ -277,6 +317,7 @@ class Company extends Component {
                   handleExtraChange={this.handleExtraChange}
                   handleModalOpen={this.handleModalOpen}
                   handleModalClose={this.handleModalClose}
+                  addToOrder={this.addToOrder}
                   open={this.state.open}
                 />
               </div>

@@ -112,8 +112,6 @@ const MenuItems = props => {
           value={field[value[key]]}
         />
       );
-    } else {
-      return "ok";
     }
   };
   // const checkBoxes = checks();
@@ -143,7 +141,7 @@ const MenuItems = props => {
                 >
                   <div style={style.modal}>
                     <Typography variant="title" id="modal-title">
-                      {item.dish_name}
+                      {item.dish_name + " " + item.dish_price + " €"}
                     </Typography>
                     <Typography variant="subheading" id={item.dish_descriptio}>
                       {item.dish_descriptio}
@@ -186,6 +184,10 @@ const MenuItems = props => {
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails style={style.checkBoxes}>
                             {mapObject(item.extra, (key, value) => {
+                              const priceFormated =
+                                value.extra_price !== ""
+                                  ? value.extra_price + "€"
+                                  : null;
                               return (
                                 <div key={key} style={style.checkBox}>
                                   {checks(
@@ -195,7 +197,7 @@ const MenuItems = props => {
                                     value.extra_name,
                                     props.handleExtraChange
                                   )}
-                                  {value.extra_name} {value.extra_price}
+                                  {value.extra_name} {priceFormated}
                                 </div>
                               );
                             })}
@@ -215,7 +217,9 @@ const MenuItems = props => {
                       <Divider />
                       <div style={style.modalFooter}>
                         <div>
-                          <Button size="small">-</Button>
+                          <Button size="small" onClick={props.quantityMinus}>
+                            -
+                          </Button>
                           <TextField
                             id="number"
                             label="Quantity"
@@ -228,7 +232,11 @@ const MenuItems = props => {
                             }}
                             margin="normal"
                           />
-                          <Button size="small" color="primary">
+                          <Button
+                            size="small"
+                            color="primary"
+                            onClick={props.quantityPlus}
+                          >
                             +
                           </Button>
                         </div>
@@ -236,7 +244,11 @@ const MenuItems = props => {
                           <Button size="small" onClick={props.handleModalClose}>
                             Cancel
                           </Button>
-                          <Button size="small" color="primary">
+                          <Button
+                            size="small"
+                            color="primary"
+                            onClick={() => props.addToOrder(item)}
+                          >
                             Save
                           </Button>
                         </div>
@@ -250,9 +262,7 @@ const MenuItems = props => {
                     secondary={item.dish_descriptio}
                     onClick={() => props.handleModalOpen(item)}
                   />
-                  <Button
-                    onClick={() => props.handleModalOpen(item, item.dish_name)}
-                  >
+                  <Button onClick={() => props.handleModalOpen(item)}>
                     {item.dish_price}€
                   </Button>
                   <Divider />
