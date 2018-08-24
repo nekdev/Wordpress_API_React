@@ -19,8 +19,22 @@ import Tab from "@material-ui/core/Tab";
 import Hidden from "@material-ui/core/Hidden";
 import Drawer from "@material-ui/core/Drawer";
 import MenuItems from "../components/MenuItems";
-import { mapObject } from "../src/helpers";
+import Modal from "@material-ui/core/Modal";
+import Button from "@material-ui/core/Button";
 
+function rand() {
+  return Math.round(Math.random() * 20) - 10;
+}
+function getModalStyle() {
+  const top = 50 + rand();
+  const left = 50 + rand();
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`
+  };
+}
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -33,19 +47,31 @@ const styles = theme => ({
     display: "flex",
     width: "100%"
   },
+  paper: {
+    position: "absolute",
+    width: theme.spacing.unit * 50,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing.unit * 4
+  },
   appBar: {
     position: "absolute",
     marginLeft: drawerWidth,
     backgroundColor: "#e1e1e1",
 
     [theme.breakpoints.up("md")]: {
-      width: `calc(100% - ${drawerWidth}px)`
+      width: "100%"
+      // width: `calc(100% - ${drawerWidth}px)`
     }
   },
   navIconHide: {
     [theme.breakpoints.up("md")]: {
       display: "none"
     }
+  },
+  orderItems: {
+    display: "flex",
+    justifyContent: "center"
   },
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
@@ -57,7 +83,11 @@ const styles = theme => ({
   content: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
-    padding: theme.spacing.unit * 3
+    padding: theme.spacing.unit * 3,
+    [theme.breakpoints.up("md")]: {
+      paddingLeft: "20rem",
+      paddingRight: "20rem"
+    }
   },
   menuItems: {
     flexGrow: 1,
@@ -81,6 +111,7 @@ class Company extends Component {
     left: false,
     tabValue: 0,
     open: [],
+    orderOpen: false,
     mobileOpen: false,
     multiline: "",
     ingredients: {
@@ -129,6 +160,12 @@ class Company extends Component {
         [name]: event.target.checked
       }
     });
+  };
+  handleOrderOpen = () => {
+    this.setState({ orderOpen: true });
+  };
+  handleOrderClose = () => {
+    this.setState({ orderOpen: false });
   };
   handleModalOpen = item => {
     if (item.ingredients.length > 0) {
@@ -260,8 +297,9 @@ class Company extends Component {
                 <Tabs
                   value={tabValue}
                   onChange={this.handleTabChange}
-                  indicatorColor="primary"
+                  indicatorColor="secondary"
                   textColor="primary"
+                  centered={true}
                 >
                   <Tab label="Menu" />
                   <Tab label="Info" />
@@ -287,39 +325,81 @@ class Company extends Component {
               {categories}
             </Drawer>
           </Hidden>
-          <Hidden smDown implementation="css">
-            <Drawer
-              variant="permanent"
-              open
-              classes={{
-                paper: classes.drawerPaper
-              }}
-            >
-              {categories}
-            </Drawer>
-          </Hidden>
+
           <main className={classes.content}>
             <div className={classes.toolbar} />
 
             {tabValue === 0 && (
-              <div className={classes.menuItems}>
-                <MenuItems
-                  sections={this.state.menu}
-                  handleQuantityChange={this.handleQuantityChange}
-                  quantity={this.state.quantity}
-                  quantityMinus={this.quantityMinus}
-                  quantityPlus={this.quantityPlus}
-                  ingredients={this.state.ingredients}
-                  extra={this.state.extra}
-                  handleInputChange={this.handleInputChange}
-                  multiline={this.state.multiline}
-                  handleIngredientsChange={this.handleIngredientsChange}
-                  handleExtraChange={this.handleExtraChange}
-                  handleModalOpen={this.handleModalOpen}
-                  handleModalClose={this.handleModalClose}
-                  addToOrder={this.addToOrder}
-                  open={this.state.open}
-                />
+              <div className="main">
+                <div className="order">
+                  <Hidden only={["md", "lg", "xl"]}>
+                    <Button onClick={this.handleOrderOpen}>Open Modal</Button>
+                    <Modal
+                      aria-labelledby="simple-modal-title"
+                      aria-describedby="simple-modal-description"
+                      open={this.state.orderOpen}
+                      onClose={this.handleOrderClose}
+                    >
+                      <div style={getModalStyle()} className={classes.paper}>
+                        <Typography variant="title" id="modal-title">
+                          Text in a modal
+                        </Typography>
+                        <Typography
+                          variant="subheading"
+                          id="simple-modal-description"
+                        >
+                          Duis mollis, est non commodo luctus, nisi erat
+                          porttitor ligula.
+                        </Typography>
+                      </div>
+                    </Modal>
+                  </Hidden>
+                </div>
+                <div className={classes.orderItems}>
+                  <Hidden smDown implementation="css">
+                    <Drawer
+                      variant="permanent"
+                      open
+                      classes={{
+                        paper: classes.drawerPaper
+                      }}
+                    >
+                      {categories}
+                    </Drawer>
+                  </Hidden>
+                  <div className={classes.menuItems}>
+                    <MenuItems
+                      sections={this.state.menu}
+                      handleQuantityChange={this.handleQuantityChange}
+                      quantity={this.state.quantity}
+                      quantityMinus={this.quantityMinus}
+                      quantityPlus={this.quantityPlus}
+                      ingredients={this.state.ingredients}
+                      extra={this.state.extra}
+                      handleInputChange={this.handleInputChange}
+                      multiline={this.state.multiline}
+                      handleIngredientsChange={this.handleIngredientsChange}
+                      handleExtraChange={this.handleExtraChange}
+                      handleModalOpen={this.handleModalOpen}
+                      handleModalClose={this.handleModalClose}
+                      addToOrder={this.addToOrder}
+                      open={this.state.open}
+                    />
+                  </div>
+                  <Hidden
+                    smDown
+                    implementation="css"
+                    className={classes.menuItems}
+                  >
+                    <div
+                      classes={{
+                        paper: classes.drawerPaper
+                      }}
+                    >
+                      {categories}
+                    </div>
+                  </Hidden>
+                </div>
               </div>
             )}
             {tabValue === 1 && <div>Company info</div>}
