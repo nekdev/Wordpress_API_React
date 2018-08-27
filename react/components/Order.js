@@ -1,25 +1,24 @@
 import React from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import Divider from "@material-ui/core/Divider";
 
-class Order extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      modal: false
-    };
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import { mapObject } from "../src/helpers";
 
-    this.toggle = this.toggle.bind(this);
-  }
+const Order = props => {
+  const { name, price, quantity, extras, ingredients } = props.details;
 
-  toggle() {
-    this.setState({
-      modal: !this.state.modal
-    });
-  }
-
-  render() {
-    return <div />;
-  }
-}
+  return (
+    <div>
+      <ListItem>
+        <ListItemText primary={name} secondary={price + "€"} />
+        {quantity}
+      </ListItem>
+      <Divider />
+    </div>
+  );
+};
 
 export default Order;

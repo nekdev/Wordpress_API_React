@@ -7,6 +7,8 @@ import Menu from "../components/Menu.js";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import Paper from "@material-ui/core/Paper";
 import Divider from "@material-ui/core/Divider";
 import { Config } from "../config.js";
 import AppBar from "@material-ui/core/AppBar";
@@ -21,6 +23,7 @@ import Drawer from "@material-ui/core/Drawer";
 import MenuItems from "../components/MenuItems";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
+import Order from "../components/Order";
 
 function rand() {
   return Math.round(Math.random() * 20) - 10;
@@ -45,7 +48,18 @@ const styles = theme => ({
     overflow: "hidden",
     position: "relative",
     display: "flex",
-    width: "100%"
+    width: "100%",
+    justifyContent: "space-around"
+  },
+  orderList: {
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: theme.palette.background.paper
+  },
+  orderFooter: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center"
   },
   paper: {
     position: "absolute",
@@ -85,8 +99,9 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit * 3,
     [theme.breakpoints.up("md")]: {
-      paddingLeft: "20rem",
-      paddingRight: "20rem"
+      maxWidth: 1000
+      // paddingLeft: "20rem",
+      // paddingRight: "20rem"
     }
   },
   menuItems: {
@@ -121,7 +136,8 @@ class Company extends Component {
       name: []
     },
     quantity: 1,
-    order: []
+    order: [],
+    total: []
   };
   static async getInitialProps(context) {
     const { slug } = context.query;
@@ -243,28 +259,34 @@ class Company extends Component {
       });
       extraPrice = mapped.reduce((a, b) => a + b, 0);
     }
-
+    const price =
+      this.state.quantity * (parseFloat(item.dish_price) + extraPrice);
     const orderItems = {
       name: item.dish_name,
       ingredients: this.state.ingredients,
       quantity: this.state.quantity,
       extras: this.state.extra,
-      price: this.state.quantity * (parseFloat(item.dish_price) + extraPrice)
+      multiline: this.state.multiline,
+      price: price
     };
 
     this.setState({
       order: [...this.state.order, orderItems],
-      open: false
+      open: false,
+      quantity: 1,
+      total: [...this.state.total, price]
     });
   };
-
   render() {
+    const showTotal = this.state.total.reduce((a, b) => a + b, 0);
     const { classes, theme } = this.props;
     const { tabValue } = this.state;
     const categories = this.state.menu.map((category, index) => {
       return (
         <div key={index}>
-          <List className={classes.sections}>{category.section_title} </List>
+          <ListItem className={classes.sections}>
+            {category.section_title}{" "}
+          </ListItem>
           <Divider />
         </div>
       );
@@ -310,22 +332,10 @@ class Company extends Component {
             </Toolbar>
           </AppBar>
           <Hidden mdUp>
-            <Drawer
-              variant="temporary"
-              anchor={theme.direction === "rtl" ? "right" : "left"}
-              open={this.state.mobileOpen}
-              onClose={this.handleDrawerToggle}
-              classes={{
-                paper: classes.drawerPaper
-              }}
-              ModalProps={{
-                keepMounted: true // Better open performance on mobile.
-              }}
-            >
-              {categories}
-            </Drawer>
+            <Paper elevation={15}>
+              <List>{categories}</List>
+            </Paper>
           </Hidden>
-
           <main className={classes.content}>
             <div className={classes.toolbar} />
 
@@ -341,16 +351,19 @@ class Company extends Component {
                       onClose={this.handleOrderClose}
                     >
                       <div style={getModalStyle()} className={classes.paper}>
-                        <Typography variant="title" id="modal-title">
-                          Text in a modal
-                        </Typography>
-                        <Typography
-                          variant="subheading"
-                          id="simple-modal-description"
-                        >
-                          Duis mollis, est non commodo luctus, nisi erat
-                          porttitor ligula.
-                        </Typography>
+                        <Paper elevation={15}>
+                          <div className={classes.orderList}>
+                            <List>
+                              {Object.keys(this.state.order).map(key => (
+                                <Order
+                                  key={key}
+                                  details={this.state.order[key]}
+                                />
+                              ))}
+                            </List>
+                            <Button>Order</Button>
+                          </div>
+                        </Paper>
                       </div>
                     </Modal>
                   </Hidden>
@@ -391,12 +404,35 @@ class Company extends Component {
                     implementation="css"
                     className={classes.menuItems}
                   >
-                    <div
-                      classes={{
-                        paper: classes.drawerPaper
-                      }}
-                    >
-                      {categories}
+                    <div className={classes.orderList}>
+                      <Paper elevation={15}>
+                        <div className={classes.orderList}>
+                          <List>
+                            {Object.keys(this.state.order).map(key => (
+                              <Order
+                                key={key}
+                                details={this.state.order[key]}
+                              />
+                            ))}
+                          </List>
+                          <div className={classes.orderList}>
+                            {showTotal === 0 ? (
+                              <div className={classes.orderFooter}>
+                                <Typography variant="title" gutterBottom>
+                                  You haven't order anything yet!
+                                </Typography>
+                              </div>
+                            ) : (
+                              <div className={classes.orderFooter}>
+                                <Typography variant="title">
+                                  <div>Total: {showTotal}</div>
+                                </Typography>
+                                <Button>Send</Button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Paper>
                     </div>
                   </Hidden>
                 </div>

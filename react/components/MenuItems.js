@@ -68,7 +68,7 @@ const style = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: "70%",
-    height: "60%",
+    height: "auto",
     position: "absolute",
     backgroundColor: "#fff",
     boxShadow: "0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)",
@@ -132,6 +132,7 @@ const MenuItems = props => {
                 <Modal
                   aria-labelledby="simple-modal-title"
                   aria-describedby="simple-modal-description"
+                  disableBackdropClick={true}
                   open={
                     !props.open[item.dish_name]
                       ? false
@@ -148,61 +149,69 @@ const MenuItems = props => {
                     </Typography>
                     <div className={classes.container}>
                       <div className={classes.root}>
-                        <ExpansionPanel defaultExpanded={true}>
-                          <ExpansionPanelSummary
-                            expandIcon={<ExpandMoreIcon />}
-                          >
-                            <Typography className={classes.heading}>
-                              Ingredients
-                            </Typography>
-                          </ExpansionPanelSummary>
-                          <ExpansionPanelDetails style={style.checkBoxes}>
-                            {mapObject(item.ingredients, (key, value) => {
-                              return (
-                                <div key={key} style={style.checkBox}>
-                                  {checks(
-                                    key,
-                                    value,
-                                    props.ingredients,
-                                    value.ingredient_name,
-                                    props.handleIngredientsChange
-                                  )}
-                                  {value.ingredient_name}
-                                </div>
-                              );
-                            })}
-                          </ExpansionPanelDetails>
-                        </ExpansionPanel>
+                        {item.ingredients ? (
+                          <ExpansionPanel defaultExpanded={true}>
+                            <ExpansionPanelSummary
+                              expandIcon={<ExpandMoreIcon />}
+                            >
+                              <Typography className={classes.heading}>
+                                Ingredients
+                              </Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails style={style.checkBoxes}>
+                              {mapObject(item.ingredients, (key, value) => {
+                                return (
+                                  <div key={key} style={style.checkBox}>
+                                    {checks(
+                                      key,
+                                      value,
+                                      props.ingredients,
+                                      value.ingredient_name,
+                                      props.handleIngredientsChange
+                                    )}
+                                    {value.ingredient_name}
+                                  </div>
+                                );
+                              })}
+                            </ExpansionPanelDetails>
+                          </ExpansionPanel>
+                        ) : (
+                          ""
+                        )}
+                        {item.extra ? (
+                          <ExpansionPanel style={style.checkBoxes}>
+                            <ExpansionPanelSummary
+                              expandIcon={<ExpandMoreIcon />}
+                            >
+                              <Typography className={classes.heading}>
+                                Extras
+                              </Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails style={style.checkBoxes}>
+                              {mapObject(item.extra, (key, value) => {
+                                const priceFormated =
+                                  value.extra_price !== ""
+                                    ? value.extra_price + "€"
+                                    : null;
+                                return (
+                                  <div key={key} style={style.checkBox}>
+                                    {checks(
+                                      key,
+                                      value,
+                                      props.extra,
+                                      value.extra_name,
+                                      props.handleExtraChange
+                                    )}
+                                    {value.extra_name} {priceFormated}
+                                  </div>
+                                );
+                              })}
+                            </ExpansionPanelDetails>
+                          </ExpansionPanel>
+                        ) : (
+                          ""
+                        )}
 
-                        <ExpansionPanel style={style.checkBoxes}>
-                          <ExpansionPanelSummary
-                            expandIcon={<ExpandMoreIcon />}
-                          >
-                            <Typography className={classes.heading}>
-                              Extras
-                            </Typography>
-                          </ExpansionPanelSummary>
-                          <ExpansionPanelDetails style={style.checkBoxes}>
-                            {mapObject(item.extra, (key, value) => {
-                              const priceFormated =
-                                value.extra_price !== ""
-                                  ? value.extra_price + "€"
-                                  : null;
-                              return (
-                                <div key={key} style={style.checkBox}>
-                                  {checks(
-                                    key,
-                                    value,
-                                    props.extra,
-                                    value.extra_name,
-                                    props.handleExtraChange
-                                  )}
-                                  {value.extra_name} {priceFormated}
-                                </div>
-                              );
-                            })}
-                          </ExpansionPanelDetails>
-                        </ExpansionPanel>
                         <TextField
                           id="multiline-flexible"
                           label="Special requests"
