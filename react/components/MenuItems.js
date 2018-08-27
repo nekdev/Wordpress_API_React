@@ -114,9 +114,7 @@ const MenuItems = props => {
       );
     }
   };
-  // const checkBoxes = checks();
   return (
-    // <div>hello</div>
     <List style={style.root} subheader={<li />}>
       {props.sections.map((sectionItems, index) => (
         <li key={`section-${index}`} style={style.listSection}>
@@ -142,7 +140,7 @@ const MenuItems = props => {
                 >
                   <div style={style.modal}>
                     <Typography variant="title" id="modal-title">
-                      {item.dish_name + " " + item.dish_price + " €"}
+                      {item.dish_name + " " + item.dish_price + "€"}
                     </Typography>
                     <Typography variant="subheading" id={item.dish_descriptio}>
                       {item.dish_descriptio}

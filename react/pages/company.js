@@ -120,6 +120,7 @@ const styles = theme => ({
 
 class Company extends Component {
   state = {
+    store: "",
     menu: [],
     categories: [],
     width: null,
@@ -149,7 +150,16 @@ class Company extends Component {
   }
 
   componentDidMount = () => {
-    this.setState({ menu: this.props.post.acf.menu_sections });
+    this.setState({
+      menu: this.props.post.acf.menu_sections,
+      store: this.props.post.title.rendered
+    });
+  };
+  componentWillUnmount = () => {
+    this.setState({
+      menu: [],
+      store: ""
+    });
   };
   handleTabChange = (e, tabValue) => {
     e.preventDefault();
@@ -275,6 +285,36 @@ class Company extends Component {
       open: false,
       quantity: 1,
       total: [...this.state.total, price]
+    });
+  };
+  sendOrder = () => {
+    const data = {
+      store: this.state.store,
+      orders: this.state.order,
+      total: this.state.total.reduce((a, b) => a + b, 0)
+    };
+    fetch(`${Config.apiUrl}/wp-json/orpheus/v1/order`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(myJson) {
+        console.log(myJson);
+        // if (myJson === "message sent") {
+        // } else {
+        //   console.log("error");
+        // }
+      });
+
+    this.setState({
+      order: [],
+      total: []
     });
   };
   render() {
@@ -427,7 +467,7 @@ class Company extends Component {
                                 <Typography variant="title">
                                   <div>Total: {showTotal}</div>
                                 </Typography>
-                                <Button>Send</Button>
+                                <Button onClick={this.sendOrder}>Send</Button>
                               </div>
                             )}
                           </div>
