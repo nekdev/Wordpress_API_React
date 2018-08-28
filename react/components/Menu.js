@@ -1,44 +1,80 @@
 import React, { Component } from "react";
 import Link from "next/link";
-import { Config } from "../config.js";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
+import Drawer from "@material-ui/core/Drawer";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
+import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
+import Hidden from "@material-ui/core/Hidden";
+import Divider from "@material-ui/core/Divider";
 import MenuIcon from "@material-ui/icons/Menu";
 
-const styles = {
-  root: {
+const drawerWidth = 240;
+
+const styles = theme => ({
+  rootBar: {
     flexGrow: 1
   },
-  flex: {
-    flex: 1
+
+  root: {
+    flexGrow: 1,
+    height: 440,
+    zIndex: 1,
+    overflow: "hidden",
+    position: "relative",
+    display: "flex",
+    width: "100%"
   },
-  menuButton: {
-    marginLeft: -12,
-    marginRight: 20
+  appBar: {
+    position: "absolute",
+    marginLeft: drawerWidth,
+    [theme.breakpoints.up("md")]: {
+      width: `calc(100% - ${drawerWidth}px)`
+    }
   },
-  navItem: {
-    borderBottom: "2px solid #fff"
+  navIconHide: {
+    [theme.breakpoints.up("md")]: {
+      display: "none"
+    }
+  },
+  toolbar: theme.mixins.toolbar,
+  drawerPaper: {
+    width: drawerWidth,
+    [theme.breakpoints.up("md")]: {
+      position: "relative"
+    }
+  },
+  toolBar: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center"
+  },
+  content: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing.unit * 3
+  },
+  linkStyle: {
+    textTransform: "uppercase",
+    cursor: "pointer",
+    textDecoration: "none",
+    color: "#fff"
   }
-};
-const linkStyle = {
-  textTransform: "uppercase",
-  cursor: "pointer",
-  textDecoration: "none",
-  color: "#fff"
-};
+});
 
 class Menu extends Component {
-  navRef = React.createRef();
-
   state = {
-    isOpen: false,
-    isSticky: "fixed-top"
+    mobileOpen: false
   };
+
+  getSlug(url) {
+    const parts = url.split("/");
+    return parts.length > 2 ? parts[parts.length - 2] : "";
+  }
 
   toggle = () => {
     this.setState({
@@ -46,43 +82,33 @@ class Menu extends Component {
     });
   };
 
-  componentDidMount() {
-    window.addEventListener("scroll", this.handleScroll);
-  }
-  componentWillUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
-  }
-
-  getSlug(url) {
-    const parts = url.split("/");
-    return parts.length > 2 ? parts[parts.length - 2] : "";
-  }
+  handleDrawerToggle = () => {
+    this.setState(state => ({ mobileOpen: !state.mobileOpen }));
+  };
 
   render() {
-    const st = styles;
-    let classes = null;
+    const { classes, theme } = this.props;
+    // let classes = null;
     const menuItems = this.props.menu.items.map((item, index) => {
       const slug = this.getSlug(item.url);
       const actualPage = item.object === "category" ? "category" : "post";
       const activePage = "/" + item.object + "/" + slug;
       const active = this.props.active === activePage ? "active" : "";
-      ("use strict");
-      classes = `${active} hvr-underline-from-center`;
+      // ("use strict");
+      // classes = `${active} hvr-underline-from-center`;
 
       return (
         <Button
-          stule={st.navitem}
+          // stule={st.navitem}
           key={item.ID}
-          className={classes}
+          // className={active}
           menuid={item.ID}
         >
           <Link
             as={`/${item.object}/${slug}`}
             href={`/${actualPage}?slug=${slug}&apiRoute=${item.object}`}
           >
-            <a style={linkStyle} className="navbar-link">
-              {item.title}
-            </a>
+            <a className={classes.linkStyle}>{item.title}</a>
           </Link>
         </Button>
       );
@@ -91,7 +117,7 @@ class Menu extends Component {
       this.props.active === "/" ? "active" : ""
     } hvr-underline-from-center`;
     return (
-      <div id="navigation" ref={this.navRef} styles={styles.root}>
+      <div className={classes.rootBar}>
         <AppBar
           position={
             this.props.settings.sticky === ""
@@ -99,30 +125,38 @@ class Menu extends Component {
               : this.props.settings.sticky
           }
         >
-          <Toolbar>
-            {/* <IconButton
-              styles={styles.menuButton}
-              color="inherit"
-              aria-label="Menu"
-            >
-              <MenuIcon />
-            </IconButton> */}
-            <div>
-              <img
-                style={{ maxWidth: this.props.settings.logoSize }}
-                src={this.props.settings.logo}
-              />
+          <Toolbar className={classes.toolBar}>
+            <div className={classes.toolBar}>
+              <IconButton
+                className={classes.menuButton}
+                color="inherit"
+                aria-label="Menu"
+              >
+                <MenuIcon />
+              </IconButton>
+              <div>
+                <img
+                  style={{ maxWidth: this.props.settings.logoSize }}
+                  src={this.props.settings.logo}
+                />
+              </div>
+              <Typography
+                variant="title"
+                color="inherit"
+                className={classes.flex}
+              >
+                Delivery
+              </Typography>
             </div>
-            <nav>
+            <div>
               <Button className={indexClass}>
                 <Link href={"/"}>
-                  <a style={linkStyle} className="navbar-link">
-                    Home
-                  </a>
+                  <a className={classes.linkStyle}>Home</a>
                 </Link>
               </Button>
-              {/* {menuItems} */}
-            </nav>
+              {menuItems}
+              <Button color="inherit">Login</Button>
+            </div>
           </Toolbar>
         </AppBar>
       </div>
@@ -130,4 +164,8 @@ class Menu extends Component {
   }
 }
 
-export default Menu;
+Menu.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
+export default withStyles(styles)(Menu);

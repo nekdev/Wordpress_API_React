@@ -25,16 +25,14 @@ import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import Order from "../components/Order";
 
-function rand() {
-  return Math.round(Math.random() * 20) - 10;
-}
 function getModalStyle() {
-  const top = 50 + rand();
-  const left = 50 + rand();
+  const top = 50;
+  const left = 50;
 
   return {
     top: `${top}%`,
     left: `${left}%`,
+    width: "100%",
     transform: `translate(-${top}%, -${left}%)`
   };
 }
@@ -56,6 +54,7 @@ const styles = theme => ({
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper
   },
+
   orderFooter: {
     display: "flex",
     justifyContent: "space-around",
@@ -128,6 +127,7 @@ class Company extends Component {
     tabValue: 0,
     open: [],
     orderOpen: false,
+    sectionOpen: false,
     mobileOpen: false,
     multiline: "",
     ingredients: {
@@ -192,6 +192,12 @@ class Company extends Component {
   };
   handleOrderClose = () => {
     this.setState({ orderOpen: false });
+  };
+  handleSectionOpen = () => {
+    this.setState({ sectionOpen: true });
+  };
+  handleSectionClose = () => {
+    this.setState({ sectionOpen: false });
   };
   handleModalOpen = item => {
     if (item.ingredients.length > 0) {
@@ -284,6 +290,7 @@ class Company extends Component {
       order: [...this.state.order, orderItems],
       open: false,
       quantity: 1,
+      multiline: "",
       total: [...this.state.total, price]
     });
   };
@@ -347,14 +354,6 @@ class Company extends Component {
         <div className={classes.root}>
           <AppBar className={classes.appBar}>
             <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="Open drawer"
-                onClick={this.handleDrawerToggle}
-                className={classes.navIconHide}
-              >
-                <MenuIcon />
-              </IconButton>
               <Typography variant="title" color="inherit" noWrap>
                 <Tabs
                   value={tabValue}
@@ -371,42 +370,83 @@ class Company extends Component {
               </Typography>
             </Toolbar>
           </AppBar>
-          <Hidden mdUp>
-            <Paper elevation={15}>
-              <List>{categories}</List>
-            </Paper>
-          </Hidden>
+
           <main className={classes.content}>
             <div className={classes.toolbar} />
 
             {tabValue === 0 && (
               <div className="main">
-                <div className="order">
-                  <Hidden only={["md", "lg", "xl"]}>
-                    <Button onClick={this.handleOrderOpen}>Open Modal</Button>
-                    <Modal
-                      aria-labelledby="simple-modal-title"
-                      aria-describedby="simple-modal-description"
-                      open={this.state.orderOpen}
-                      onClose={this.handleOrderClose}
-                    >
-                      <div style={getModalStyle()} className={classes.paper}>
-                        <Paper elevation={15}>
-                          <div className={classes.orderList}>
-                            <List>
-                              {Object.keys(this.state.order).map(key => (
-                                <Order
-                                  key={key}
-                                  details={this.state.order[key]}
-                                />
-                              ))}
-                            </List>
-                            <Button>Order</Button>
-                          </div>
-                        </Paper>
-                      </div>
-                    </Modal>
-                  </Hidden>
+                <div className={classes.orderFooter}>
+                  <div className="section-list">
+                    <Hidden only={["md", "lg", "xl"]}>
+                      <Button onClick={this.handleSectionOpen}>
+                        <MenuIcon />
+                      </Button>
+                      <Modal
+                        aria-labelledby="simple-modal-title"
+                        aria-describedby="simple-modal-description"
+                        open={this.state.sectionOpen}
+                        onClose={this.handleSectionClose}
+                      >
+                        <div style={getModalStyle()} className={classes.paper}>
+                          <Paper elevation={15}>
+                            <div className={classes.orderList}>
+                              <List>{categories}</List>
+                              <div className={classes.orderList}>
+                                <Button onClick={this.handleSectionClose}>
+                                  Close
+                                </Button>
+                              </div>
+                            </div>
+                          </Paper>
+                        </div>
+                      </Modal>
+                    </Hidden>
+                  </div>
+                  <div className="order">
+                    <Hidden only={["md", "lg", "xl"]}>
+                      <Button onClick={this.handleOrderOpen}>Open Modal</Button>
+                      <Modal
+                        aria-labelledby="simple-modal-title"
+                        aria-describedby="simple-modal-description"
+                        open={this.state.orderOpen}
+                        onClose={this.handleOrderClose}
+                      >
+                        <div style={getModalStyle()} className={classes.paper}>
+                          <Paper elevation={15}>
+                            <div className={classes.orderList}>
+                              <List>
+                                {Object.keys(this.state.order).map(key => (
+                                  <Order
+                                    key={key}
+                                    details={this.state.order[key]}
+                                  />
+                                ))}
+                              </List>
+                              <div className={classes.orderList}>
+                                {showTotal === 0 ? (
+                                  <div className={classes.orderFooter}>
+                                    <Typography variant="title" gutterBottom>
+                                      You haven't order anything yet!
+                                    </Typography>
+                                  </div>
+                                ) : (
+                                  <div className={classes.orderFooter}>
+                                    <Typography variant="title">
+                                      <div>Total: {showTotal}</div>
+                                    </Typography>
+                                    <Button onClick={this.sendOrder}>
+                                      Send
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </Paper>
+                        </div>
+                      </Modal>
+                    </Hidden>
+                  </div>
                 </div>
                 <div className={classes.orderItems}>
                   <Hidden smDown implementation="css">
