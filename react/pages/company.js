@@ -138,7 +138,9 @@ class Company extends Component {
     },
     quantity: 1,
     order: [],
-    total: []
+    total: [],
+    user: "",
+    password: ""
   };
   static async getInitialProps(context) {
     const { slug } = context.query;
@@ -155,12 +157,12 @@ class Company extends Component {
       store: this.props.post.title.rendered
     });
   };
-  componentWillUnmount = () => {
-    this.setState({
-      menu: [],
-      store: ""
-    });
-  };
+  // componentWillUnmount = () => {
+  //   this.setState({
+  //     menu: [],
+  //     store: ""
+  //   });
+  // };
   handleTabChange = (e, tabValue) => {
     e.preventDefault();
     this.setState({ tabValue });
@@ -349,6 +351,10 @@ class Company extends Component {
           menu={this.props.headerMenu}
           settings={this.props.settings}
           active={this.props.url.asPath}
+          user={this.state.user}
+          password={this.state.password}
+          showPassword={this.showPassword}
+          handleInputChange={this.handleInputChange}
         />
 
         <div className={classes.root}>

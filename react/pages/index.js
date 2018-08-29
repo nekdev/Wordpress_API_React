@@ -38,6 +38,11 @@ const styles = {
 };
 
 class Index extends Component {
+  state = {
+    open: false,
+    password: "",
+    user: ""
+  };
   static async getInitialProps(context) {
     const postsRes = await fetch(
       `${Config.apiUrl}/wp-json/wp/v2/companys?_embed`
@@ -46,6 +51,20 @@ class Index extends Component {
 
     return { posts };
   }
+  handleUChange = prop => event => {
+    this.setState({ [prop]: event.target.value });
+  };
+  // handleOpen = () => {
+  //   console.log(this.state);
+  //   this.setState({ dialogOpen: true });
+  // };
+  // handleClose = () => {
+  //   this.setState({
+  //     open: false,
+  //     password: "",
+  //     user: ""
+  //   });
+  // };
 
   render() {
     const posts = this.props.posts.map((post, index) => {
@@ -83,9 +102,15 @@ class Index extends Component {
     return (
       <Layout>
         <Menu
+          handleUChange={this.handleUChange}
+          // handleClose={this.handleClose}
+          // handleOpen={this.handleOpen}
+          open={this.state.open}
           menu={this.props.headerMenu}
           settings={this.props.settings}
           active={this.props.url.asPath}
+          pass={this.state.password}
+          usr={this.state.user}
         />
         <div className="content" style={mainStyle}>
           <div className="companies" style={styles.companies}>
