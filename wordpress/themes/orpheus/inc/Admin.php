@@ -44,7 +44,13 @@ class Admin {
         add_filter( 'preview_post_link', array($this, 'set_headless_preview_link' ));
         add_action( 'admin_menu',array($this->MenuOptions, 'admin_menu_option'));
         remove_filter( 'the_excerpt', 'wpautop' );
+        add_action( 'init', array($this->Settings,'cpt'));
         add_action( 'init', array($this->Settings,'company_taxonomies'));
+        add_action( 'init', array($this->Settings,'usr_taxonomies'));
+        add_action( 'init', array($this->Settings,'user_cpt'));
+        add_action( 'add_meta_boxes', array($this->Settings,'user_add_metabox' ));
+        add_action( 'save_post', array($this->Settings, 'orpheus_save_cat_data' ));
+
         if( @$this->Settings->contact == 1) {
             add_action( 'init', array($this->Settings,'contact_cpt'));
             add_filter( 'manage_orpheus_contact_posts_columns', array($this->Settings, 'set_contact_columns'));
@@ -57,7 +63,7 @@ class Admin {
             add_action( 'init', array($this->Settings,'delivery_cpt'));
             add_filter( 'manage_orpheus_delivery_posts_columns', array($this->Settings, 'set_delivery_columns'));
             add_action( 'manage_orpheus_delivery_posts_custom_column', array($this->Settings, 'delivery_custom_column'), 10, 2);
-            add_action( 'add_meta_boxes', array($this->Settings,'delivery_add_metabox' ));
+            // add_action( 'add_meta_boxes', array($this->Settings,'delivery_add_metabox' ));
             // add_action( 'save_post', array($this->Settings, 'orpheus_save_email_data'));
             // add_shortcode( 'booking_form', array($this->shortcodes, 'booking_form'));
         }
@@ -132,17 +138,33 @@ class Admin {
                     ],
                 ] );
 
+                register_rest_route('orpheus/v1', 'users/register', array(
+                    'methods' => 'POST',
+                    'callback' => 'rest_user_endpoint_handler',
+                  ));
+                  register_rest_route( 'orpheus/v1', '/login', array(
+                    'methods' => 'GET',
+                    'callback' => array($this,'rest_user_login')
+                ));
+
+
                 register_rest_route( 'orpheus/v1', '/company', [
                     'methods'  => 'GET',
                     'callback' => array($this, 'rest_get_company'),
                     'args' => [
                         'slug' => array_merge(
-                            $delivery_slug_arg,
+                            $company_slug_arg,
                             [
                                 'required' => true,
                             ]
                         ),
                     ],
+                ] );
+
+                register_rest_route( 'orpheus/v1', '/order', [
+                    'methods'  => 'post',
+                    'callback' => array($this, 'rest_order'),
+
                 ] );
 
                 register_rest_route( 'orpheus/v1', '/contact', [
@@ -202,6 +224,16 @@ class Admin {
                         'update_callback' => null,
                         'schema'          => null,
                          )
+                    );
+
+                register_rest_field(
+                    array ('post', 'page', 'company'), // Where to add the field (Here, blog posts. Could be an array)
+                    'featured_image_src', // Name of new field (You can call this anything)
+                    array(
+                        'get_callback'    => array ($this, 'get_meta_src'),
+                        'update_callback' => null,
+                        'schema'          => null,
+                            )
                     );
 
             }
@@ -274,6 +306,86 @@ class Admin {
             . get_the_ID() . '/'
             . wp_create_nonce( 'wp_rest' );
     }
+
+
+    ////// set user Registretation and login
+     //USER REGISTER
+    // function rest_user_endpoint_handler(WP_REST_Request $request) {
+
+    //     $username = sanitize_text_field($request['username']);
+    //     $email = sanitize_text_field($request['email']);
+    //     $password = sanitize_text_field($request['password']);
+    //     // $role = sanitize_text_field($parameters['role']);
+    //     $error = new WP_Error();
+    //     if (empty($username)) {
+    //       $error->add(400, __("Username field 'username' is required.", 'wp-rest-user'), array('status' => 400));
+    //       return $error;
+    //     }
+    //     if (empty($email)) {
+    //       $error->add(401, __("Email field 'email' is required.", 'wp-rest-user'), array('status' => 400));
+    //       return $error;
+    //     }
+    //     if (empty($password)) {
+    //       $error->add(404, __("Password field 'password' is required.", 'wp-rest-user'), array('status' => 400));
+    //       return $error;
+    //     }
+    //     // if (empty($role)) {
+    //     //  $role = 'subscriber';
+    //     // } else {
+    //     //     if ($GLOBALS['wp_roles']->is_role($role)) {
+    //     //      // Silence is gold
+    //     //     } else {
+    //     //    $error->add(405, __("Role field 'role' is not a valid. Check your User Roles from Dashboard.", 'wp_rest_user'), array('status' => 400));
+    //     //    return $error;
+    //     //     }
+    //     // }
+    //     $user_id = username_exists($username);
+    //     if (!$user_id && email_exists($email) == false) {
+    //       $user_id = wp_create_user($username, $password, $email);
+    //       if (!is_wp_error($user_id)) {
+    //         // Ger User Meta Data (Sensitive, Password included. DO NOT pass to front end.)
+    //         $user = get_user_by('id', $user_id);
+    //         // $user->set_role($role);
+    //         $user->set_role('subscriber');
+    //         // WooCommerce specific code
+    //         if (class_exists('WooCommerce')) {
+    //           $user->set_role('customer');
+    //         }
+    //         // Ger User Data (Non-Sensitive, Pass to front end.)
+    //         $response['code'] = 200;
+    //         $response['message'] = __("User '" . $username . "' Registration was Successful", "wp-rest-user");
+    //       } else {
+    //         return $user_id;
+    //       }
+    //     } else {
+    //       $error->add(406, __("Email already exists, please try 'Reset Password'", 'wp-rest-user'), array('status' => 400));
+    //       return $error;
+    //     }
+    //     return new WP_REST_Response($response, 123);
+    //   }
+
+    /**
+     * Respond to a REST API request user login.
+     *
+     * @param WP_REST_Request $request Request.
+     * @return WP_REST_Response
+     */
+    function rest_user_login( WP_REST_Request $request ) {
+        $nonce = wp_create_nonce("wp_rest");
+        $user = wp_signon(array('user_login' => "admin",
+            'user_password' => "123456", "rememberme" => true), false);
+        if (is_wp_error($user)) {
+            return $user;
+        }
+
+        //do_action( 'wp_login', "capad" );
+        //$user['isloggedin'] = is_user_logged_in();
+        return array('user' => $user,
+            'nonce' => $nonce);
+    }
+
+
+
      /**
      * Respond to a REST API request to get post data.
      *
@@ -292,6 +404,49 @@ class Admin {
      */
     function rest_get_company( WP_REST_Request $request ) {
         return $this->rest_get_content( $request, 'company', __FUNCTION__ );
+    }
+
+
+    // Add order items to wp post order
+    function rest_order( WP_REST_Request $request ) {
+        $order = $request['orders'];
+        $store = $request['store'];
+        $total = $request['total'];
+        $items = '';
+
+        function showItems($i){
+                $txt= '';
+                foreach ($i as $key => $value) {
+                    if ($value == "true") {
+                        $txt .= ' '.$key .', ';
+
+                    }else {
+                        $txt .= ' <del>'.$key .', </del> ';
+                    }
+                }
+                return $txt;
+            }
+        foreach ($order as $item => $value) {
+            $items .= $value['quantity'] .' '. $value['name'] . ' - ' . showItems($value['ingredients']) .' -- '. showItems($value['extras']) . ' --- ' . '<span style="font-wheight:500;">'.$value['multiline'].'</span>' . ' | '.$value['price'] .'€<br>';
+            if ($value == 'name') {
+
+            }
+        };
+        $items .= 'TOTAL: ' .$total.'€';
+
+
+        $my_post = array(
+            'post_type'     => 'order',
+            'post_title'    => wp_strip_all_tags( 'New order for '.$store ),
+            'post_content'  => $items,
+            'post_status'   => 'draft',
+            'post_author'   => 1,
+            // 'post_category' => array( 8,39 )
+          );
+
+          // Insert the post into the database
+          wp_insert_post( $my_post );
+    return $total;
     }
 
     /**
@@ -416,6 +571,12 @@ class Admin {
           true // Whether the image should be treated as an icon.
         );
         return $feat_img_array[0];
+      }
+
+      //Rest get categories terms from cpt , ['area','company_type']
+      function get_meta_src( $object, $field_name, $request ) {
+        $terms =  get_the_terms( $object["id"], 'area' );
+        return $terms;
       }
     /**
      * Returns a post or page given a slug. Returns false if no post matches.

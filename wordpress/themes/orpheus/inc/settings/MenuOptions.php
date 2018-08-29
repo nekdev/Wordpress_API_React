@@ -12,6 +12,7 @@
  */
 use Inc\settings\Settings;
 use Inc\adminPages\ThemeSettings;
+use Inc\adminPages\CPT;
 
 
 class MenuOptions
@@ -19,7 +20,8 @@ class MenuOptions
     //private $adm;
     function __construct(){
         $this   ->  settings            =   new Settings;
-        $this   ->  themeSettings            =   new ThemeSettings;
+        $this   ->  themeSettings       =   new ThemeSettings;
+        $this   ->  cpt                 =   new CPT;
         $this   ->  theme               =   get_template_directory();
     }
     //Create Theme Page and Subpages
@@ -65,7 +67,9 @@ class MenuOptions
          </g>
         </g>
        </svg>'), 200);
+    //    add_submenu_page($parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function)
         add_submenu_page('orpheus', 'Theme Options', 'Settings', 'manage_options', 'orpheus', array($this,'themeSettings'));
+        add_submenu_page('orpheus', 'cpt', 'CPT', 'manage_options', 'edit.php?post_type=cpt'); //,array($this->settings,'blog_cpt'));
         add_submenu_page( 'orpheus', 'Contact Options', 'Contact', 'manage_options', 'orpheus_contact', array($this, 'contactSettings'));
         add_submenu_page( 'orpheus', 'Sidebar Options', 'Sidebar', 'manage_options', 'orpheus_sidebar', array($this, 'sidebarSettings'));
         add_submenu_page( 'orpheus', 'Slider Options', 'Slider', 'manage_options', 'orpheus_slider', array($this, 'sliderSettings'));
