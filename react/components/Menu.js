@@ -234,7 +234,11 @@ class Menu extends Component {
                       id="adornment-user"
                       type="text"
                       value={this.props.user}
-                      onChange={this.props.handleInputChange("user")}
+                      onChange={
+                        this.props.handleInputChange
+                          ? this.props.handleInputChange("user")
+                          : null
+                      }
                     />
                   </FormControl>
                   <FormControl
@@ -247,7 +251,11 @@ class Menu extends Component {
                       id="adornment-password"
                       type={this.state.showPassword ? "text" : "password"}
                       value={this.props.password}
-                      onChange={this.props.handleInputChange("password")}
+                      onChange={
+                        this.props.handleInputChange
+                          ? this.props.handleInputChange("password")
+                          : null
+                      }
                       endAdornment={
                         <InputAdornment position="end">
                           <IconButton
@@ -270,8 +278,11 @@ class Menu extends Component {
                   <Button onClick={this.handleClose} color="primary">
                     Cancel
                   </Button>
-                  <Button onClick={this.handleClose} color="primary">
-                    Subscribe
+                  <Button onClick={this.handleRegister} color="primary">
+                    Register
+                  </Button>
+                  <Button onClick={this.props.handleLogin} color="primary">
+                    Login
                   </Button>
                 </DialogActions>
               </Dialog>

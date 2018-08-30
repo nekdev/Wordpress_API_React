@@ -327,6 +327,32 @@ class Company extends Component {
       total: []
     });
   };
+
+  handleLogin = () => {
+    const data = {
+      user: this.state.user,
+      password: this.state.password
+    };
+    fetch(`${Config.apiUrl}/wp-json/orpheus/v1/login`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+      .then(function(response) {
+        console.log(response);
+        return response.json();
+      })
+      .then(function(myJson) {
+        console.log(myJson);
+        // if (myJson === "message sent") {
+        // } else {
+        //   console.log("error");
+        // }
+      });
+  };
   render() {
     const showTotal = this.state.total.reduce((a, b) => a + b, 0);
     const { classes, theme } = this.props;
@@ -355,6 +381,7 @@ class Company extends Component {
           user={this.state.user}
           password={this.state.password}
           showPassword={this.showPassword}
+          handleLogin={this.handleLogin}
           handleInputChange={this.handleInputChange}
         />
 

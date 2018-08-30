@@ -39,9 +39,7 @@ const styles = {
 
 class Index extends Component {
   state = {
-    open: false,
-    password: "",
-    user: ""
+    open: false
   };
   static async getInitialProps(context) {
     const postsRes = await fetch(
@@ -51,24 +49,9 @@ class Index extends Component {
 
     return { posts };
   }
-  handleUChange = prop => event => {
-    this.setState({ [prop]: event.target.value });
-  };
-  // handleOpen = () => {
-  //   console.log(this.state);
-  //   this.setState({ dialogOpen: true });
-  // };
-  // handleClose = () => {
-  //   this.setState({
-  //     open: false,
-  //     password: "",
-  //     user: ""
-  //   });
-  // };
 
   render() {
     const posts = this.props.posts.map((post, index) => {
-      console.log(post);
       return (
         <Card style={styles.card} key={index}>
           <CardMedia
@@ -102,9 +85,6 @@ class Index extends Component {
     return (
       <Layout>
         <Menu
-          handleUChange={this.handleUChange}
-          // handleClose={this.handleClose}
-          // handleOpen={this.handleOpen}
           open={this.state.open}
           menu={this.props.headerMenu}
           settings={this.props.settings}

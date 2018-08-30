@@ -143,7 +143,7 @@ class Admin {
                     'callback' => 'rest_user_endpoint_handler',
                   ));
                   register_rest_route( 'orpheus/v1', '/login', array(
-                    'methods' => 'GET',
+                    'methods' => 'post',
                     'callback' => array($this,'rest_user_login')
                 ));
 
@@ -228,7 +228,7 @@ class Admin {
 
                 register_rest_field(
                     array ('post', 'page', 'company'), // Where to add the field (Here, blog posts. Could be an array)
-                    'featured_image_src', // Name of new field (You can call this anything)
+                    'meta_src', // Name of new field (You can call this anything)
                     array(
                         'get_callback'    => array ($this, 'get_meta_src'),
                         'update_callback' => null,
@@ -372,8 +372,8 @@ class Admin {
      */
     function rest_user_login( WP_REST_Request $request ) {
         $nonce = wp_create_nonce("wp_rest");
-        $user = wp_signon(array('user_login' => "admin",
-            'user_password' => "123456", "rememberme" => true), false);
+        $user = wp_signon(array('user_login' => $request['user'],
+            'user_password' => $request['password'], "rememberme" => true), false);
         if (is_wp_error($user)) {
             return $user;
         }
@@ -382,6 +382,7 @@ class Admin {
         //$user['isloggedin'] = is_user_logged_in();
         return array('user' => $user,
             'nonce' => $nonce);
+        // return $request;
     }
 
 
@@ -615,7 +616,7 @@ class Admin {
                 'meta_query' => [
                     [
                         'key' => '_wp_old_slug',
-                        'value' => $post_slug,
+                        'value' => "name",
                         'compare' => '=',
                     ],
                 ],
