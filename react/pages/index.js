@@ -51,6 +51,11 @@ class Index extends Component {
   }
 
   render() {
+    console.log(
+      "\n    _        _     _            _\n   /_\\  _ __(_)___| |_ ___  ___| |__\n  //_\\\\| '__| / __| __/ _ \\/ __| '_ \\\n /  _  \\ |  | \\__ \\ |_  __/ (__| | | |\n \\_/ \\_/_|  |_|___/\\__\\___|\\___|_| |_|" +
+        '\n========================================\nIt looks like you\'re looking for something!\nMaybe some piece of code,\nor do you need help?\nIf you just want to say "Hello", \nemail me @ aristech.gr@gmail.com\n========================================\n'
+    );
+
     const posts = this.props.posts.map((post, index) => {
       return (
         <Card style={styles.card} key={index}>
