@@ -47,11 +47,9 @@ const styles = theme => ({
 const style = {
   root: {
     width: "100%",
-    maxWidth: 360,
-
     position: "relative",
-    overflow: "auto",
-    maxHeight: "100%"
+    overflowY: "auto",
+    height: "100%"
   },
   listSection: {
     backgroundColor: "inherit"
@@ -116,170 +114,181 @@ const MenuItems = props => {
   };
   return (
     <List style={style.root} subheader={<li />}>
-      {props.sections.map((sectionItems, index) => (
-        <li key={`section-${index}`} style={style.listSection}>
-          <ul style={style.ul}>
-            <ListSubheader refs={`ref-${index}`} style={style.listTitle}>
-              {sectionItems.section_title}
-            </ListSubheader>
-            {sectionItems.section_items.map(item => (
-              <ListItem
-                key={`item-${item.dish_name}`}
-                refs={`itemRef-${item.dish_name}`}
+      {props.sections &&
+        props.sections.map((sectionItems, index) => (
+          <li key={`section-${index}`} style={style.listSection}>
+            <ul style={style.ul}>
+              <ListSubheader
+                id={`${sectionItems.section_title}-${index}`}
+                refs={`ref-${index}`}
+                style={style.listTitle}
               >
-                <Modal
-                  aria-labelledby="simple-modal-title"
-                  aria-describedby="simple-modal-description"
-                  disableBackdropClick={true}
-                  open={
-                    !props.open[item.dish_name]
-                      ? false
-                      : props.open[item.dish_name]
-                  }
-                  onClose={props.handleModalClose}
+                {sectionItems.section_title}
+              </ListSubheader>
+              {sectionItems.section_items.map(item => (
+                <ListItem
+                  key={`item-${item.dish_name}`}
+                  refs={`itemRef-${item.dish_name}`}
                 >
-                  <div style={style.modal}>
-                    <Typography variant="title" id="modal-title">
-                      {item.dish_name + " " + item.dish_price + "€"}
-                    </Typography>
-                    <Typography variant="subheading" id={item.dish_descriptio}>
-                      {item.dish_descriptio}
-                    </Typography>
-                    <div className={classes.container}>
-                      <div className={classes.root}>
-                        {item.ingredients ? (
-                          <ExpansionPanel defaultExpanded={true}>
-                            <ExpansionPanelSummary
-                              expandIcon={<ExpandMoreIcon />}
-                            >
-                              <Typography className={classes.heading}>
-                                Ingredients
-                              </Typography>
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails style={style.checkBoxes}>
-                              {mapObject(item.ingredients, (key, value) => {
-                                return (
-                                  <div key={key} style={style.checkBox}>
-                                    {checks(
-                                      key,
-                                      value,
-                                      props.ingredients,
-                                      value.ingredient_name,
-                                      props.handleIngredientsChange
-                                    )}
-                                    {value.ingredient_name}
-                                  </div>
-                                );
-                              })}
-                            </ExpansionPanelDetails>
-                          </ExpansionPanel>
-                        ) : (
-                          ""
-                        )}
-                        {item.extra ? (
-                          <ExpansionPanel style={style.checkBoxes}>
-                            <ExpansionPanelSummary
-                              expandIcon={<ExpandMoreIcon />}
-                            >
-                              <Typography className={classes.heading}>
-                                Extras
-                              </Typography>
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails style={style.checkBoxes}>
-                              {mapObject(item.extra, (key, value) => {
-                                const priceFormated =
-                                  value.extra_price !== ""
-                                    ? value.extra_price + "€"
-                                    : null;
-                                return (
-                                  <div key={key} style={style.checkBox}>
-                                    {checks(
-                                      key,
-                                      value,
-                                      props.extra,
-                                      value.extra_name,
-                                      props.handleExtraChange
-                                    )}
-                                    {value.extra_name} {priceFormated}
-                                  </div>
-                                );
-                              })}
-                            </ExpansionPanelDetails>
-                          </ExpansionPanel>
-                        ) : (
-                          ""
-                        )}
+                  <Modal
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                    disableBackdropClick={true}
+                    open={
+                      !props.open[item.dish_name]
+                        ? false
+                        : props.open[item.dish_name]
+                    }
+                    onClose={props.handleModalClose}
+                  >
+                    <div style={style.modal}>
+                      <Typography variant="title" id="modal-title">
+                        {item.dish_name + " " + item.dish_price + "€"}
+                      </Typography>
+                      <Typography
+                        variant="subheading"
+                        id={item.dish_descriptio}
+                      >
+                        {item.dish_descriptio}
+                      </Typography>
+                      <div className={classes.container}>
+                        <div className={classes.root}>
+                          {item.ingredients ? (
+                            <ExpansionPanel defaultExpanded={true}>
+                              <ExpansionPanelSummary
+                                expandIcon={<ExpandMoreIcon />}
+                              >
+                                <Typography className={classes.heading}>
+                                  Ingredients
+                                </Typography>
+                              </ExpansionPanelSummary>
+                              <ExpansionPanelDetails style={style.checkBoxes}>
+                                {mapObject(item.ingredients, (key, value) => {
+                                  return (
+                                    <div key={key} style={style.checkBox}>
+                                      {checks(
+                                        key,
+                                        value,
+                                        props.ingredients,
+                                        value.ingredient_name,
+                                        props.handleIngredientsChange
+                                      )}
+                                      {value.ingredient_name}
+                                    </div>
+                                  );
+                                })}
+                              </ExpansionPanelDetails>
+                            </ExpansionPanel>
+                          ) : (
+                            ""
+                          )}
+                          {item.extra ? (
+                            <ExpansionPanel style={style.checkBoxes}>
+                              <ExpansionPanelSummary
+                                expandIcon={<ExpandMoreIcon />}
+                              >
+                                <Typography className={classes.heading}>
+                                  Extras
+                                </Typography>
+                              </ExpansionPanelSummary>
+                              <ExpansionPanelDetails style={style.checkBoxes}>
+                                {mapObject(item.extra, (key, value) => {
+                                  const priceFormated =
+                                    value.extra_price !== ""
+                                      ? value.extra_price + "€"
+                                      : null;
+                                  return (
+                                    <div key={key} style={style.checkBox}>
+                                      {checks(
+                                        key,
+                                        value,
+                                        props.extra,
+                                        value.extra_name,
+                                        props.handleExtraChange
+                                      )}
+                                      {value.extra_name} {priceFormated}
+                                    </div>
+                                  );
+                                })}
+                              </ExpansionPanelDetails>
+                            </ExpansionPanel>
+                          ) : (
+                            ""
+                          )}
 
-                        <TextField
-                          id="multiline-flexible"
-                          label="Special requests"
-                          multiline
-                          rowsMax="4"
-                          value={props.multiline}
-                          onChange={props.handleInputChange("multiline")}
-                          className={classes.textField}
-                          margin="normal"
-                        />
-                      </div>
-                      <Divider />
-                      <div style={style.modalFooter}>
-                        <div>
-                          <Button size="small" onClick={props.quantityMinus}>
-                            -
-                          </Button>
                           <TextField
-                            id="number"
-                            label="Quantity"
-                            value={props.quantity}
-                            onChange={props.handleInputChange("quantity")}
-                            type="number"
-                            style={style.numField}
-                            InputLabelProps={{
-                              shrink: true
-                            }}
+                            id="multiline-flexible"
+                            label="Special requests"
+                            multiline
+                            rowsMax="4"
+                            value={props.multiline}
+                            onChange={props.handleInputChange("multiline")}
+                            className={classes.textField}
                             margin="normal"
                           />
-                          <Button
-                            size="small"
-                            color="primary"
-                            onClick={props.quantityPlus}
-                          >
-                            +
-                          </Button>
                         </div>
-                        <div>
-                          <Button size="small" onClick={props.handleModalClose}>
-                            Cancel
-                          </Button>
-                          <Button
-                            size="small"
-                            color="primary"
-                            onClick={() => props.addToOrder(item)}
-                          >
-                            Save
-                          </Button>
+                        <Divider />
+                        <div style={style.modalFooter}>
+                          <div>
+                            <Button size="small" onClick={props.quantityMinus}>
+                              -
+                            </Button>
+                            <TextField
+                              id="number"
+                              label="Quantity"
+                              value={props.quantity}
+                              onChange={props.handleInputChange("quantity")}
+                              type="number"
+                              style={style.numField}
+                              InputLabelProps={{
+                                shrink: true
+                              }}
+                              margin="normal"
+                            />
+                            <Button
+                              size="small"
+                              color="primary"
+                              onClick={props.quantityPlus}
+                            >
+                              +
+                            </Button>
+                          </div>
+                          <div>
+                            <Button
+                              size="small"
+                              onClick={props.handleModalClose}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="small"
+                              color="primary"
+                              onClick={() => props.addToOrder(item)}
+                            >
+                              Save
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  </Modal>
+                  <div style={style.listings}>
+                    <ListItemText
+                      primary={item.dish_name}
+                      secondary={item.dish_descriptio}
+                      onClick={() => props.handleModalOpen(item)}
+                    />
+                    <Button onClick={() => props.handleModalOpen(item)}>
+                      {item.dish_price}€
+                    </Button>
+                    <Divider />
                   </div>
-                </Modal>
-                <div style={style.listings}>
-                  <ListItemText
-                    primary={item.dish_name}
-                    secondary={item.dish_descriptio}
-                    onClick={() => props.handleModalOpen(item)}
-                  />
-                  <Button onClick={() => props.handleModalOpen(item)}>
-                    {item.dish_price}€
-                  </Button>
-                  <Divider />
-                </div>
-              </ListItem>
-            ))}
-            <Divider />
-          </ul>
-        </li>
-      ))}
+                </ListItem>
+              ))}
+              <Divider />
+            </ul>
+          </li>
+        ))}
     </List>
   );
 };

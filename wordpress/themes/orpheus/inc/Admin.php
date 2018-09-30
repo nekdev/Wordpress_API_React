@@ -371,19 +371,37 @@ class Admin {
      * @return WP_REST_Response
      */
     function rest_user_login( WP_REST_Request $request ) {
+        $username = sanitize_text_field($request['username']);
+        $password = sanitize_text_field($request['password']);
         $nonce = wp_create_nonce("wp_rest");
-        $user = wp_signon(array('user_login' => $request['user'],
-            'user_password' => $request['password'], "rememberme" => true), false);
+        $user = wp_signon(array('user_login' => $username,
+            'user_password' => $password, "rememberme" => true), false);
         if (is_wp_error($user)) {
-            return $user;
+            return $user->get_error_message();
         }
 
         //do_action( 'wp_login', "capad" );
         //$user['isloggedin'] = is_user_logged_in();
         return array('user' => $user,
             'nonce' => $nonce);
-        // return $request;
     }
+
+    function rest_auth_user(WP_REST_Request $request)
+{
+    // if (!is_string($action)) {
+    //     throw new InvalidArgumentException('Action must be a string');
+    // }
+
+    // $this->action = $action;
+
+    $auth = $request["token"];
+    // if (empty($auth)) {
+    //     return false;
+    // }
+
+
+    return wp_verify_nonce($auth);
+}
 
 
 
@@ -416,7 +434,9 @@ class Admin {
         $items = '';
 
         function showItems($i){
-                $txt= '';
+            $txt= '';
+
+
                 foreach ($i as $key => $value) {
                     if ($value == "true") {
                         $txt .= ' '.$key .', ';
@@ -425,13 +445,19 @@ class Admin {
                         $txt .= ' <del>'.$key .', </del> ';
                     }
                 }
-                return $txt;
-            }
-        foreach ($order as $item => $value) {
-            $items .= $value['quantity'] .' '. $value['name'] . ' - ' . showItems($value['ingredients']) .' -- '. showItems($value['extras']) . ' --- ' . '<span style="font-wheight:500;">'.$value['multiline'].'</span>' . ' | '.$value['price'] .'€<br>';
-            if ($value == 'name') {
 
-            }
+            return $txt;
+        }
+        foreach ($order as $item => $value) {
+            // return empty($value['ingredients']) ? 'no ingredients' : $value['ingredients'];
+            $items .= $value['quantity'] ." ";
+            $items .= $value['name']. " - ";
+            $items .= array_key_exists("ingredients",$value) ?  showItems($value['ingredients']) : " ";
+            $items .= " -- ";
+            $items .= array_key_exists("extras",$value) ? showItems($value['extras']) : "";
+            $items .= " --- <span style='font-wheight:500'>";
+            $items .= esc_attr($value['multiline']);
+            $items .= "</span> | " . $value['price'] . "€<br>";
         };
         $items .= 'TOTAL: ' .$total.'€';
 
@@ -447,7 +473,7 @@ class Admin {
 
           // Insert the post into the database
           wp_insert_post( $my_post );
-    return $total;
+    return $items;
     }
 
     /**

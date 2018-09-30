@@ -22,6 +22,12 @@ app
       app.render(req, res, actualPage, queryParams);
     });
 
+    server.get("/company/:slug", (req, res) => {
+      const actualPage = "/company";
+      const queryParams = { slug: req.params.slug, apiRoute: "page" };
+      app.render(req, res, actualPage, queryParams);
+    });
+
     server.get("/category/:slug", (req, res) => {
       const actualPage = "/category";
       const queryParams = { slug: req.params.slug };
@@ -38,18 +44,9 @@ app
       return handle(req, res);
     });
 
-    server.get("./offline/serviceWorker.js", (req, res) => {
-      if (pathname === "/") {
-        res.setHeader("content-type", "text/javascript");
-        createReadStream("./offline/serviceWorker.js").pipe(res);
-      } else {
-        handle(req, res, parsedUrl);
-      }
-    });
-
     server.listen(3000, err => {
       if (err) throw err;
-      console.log("> Ready on http://localhost:3000");
+      console.log("> Ready on server : http://localhost:3000");
     });
   })
   .catch(ex => {

@@ -1,9 +1,9 @@
-import Layout from "../components/Layout.js";
+// import Layout from "../components/Layout.js";
 import React, { Component } from "react";
 import fetch from "isomorphic-unfetch";
 import Error from "next/error";
 import PageWrapper from "../components/PageWrapper.js";
-import Menu from "../components/Menu.js";
+import Navigation from "../components/Navigation";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
@@ -13,8 +13,10 @@ import Divider from "@material-ui/core/Divider";
 import { Config } from "../config.js";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
+import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
+import ShoppingBasket from "@material-ui/icons/ShoppingBasket";
+import Badge from "@material-ui/core/Badge";
 import Typography from "@material-ui/core/Typography";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -24,6 +26,7 @@ import MenuItems from "../components/MenuItems";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import Order from "../components/Order";
+import ScrollIntoView from "react-scroll-into-view";
 
 function getModalStyle() {
   const top = 50;
@@ -36,7 +39,7 @@ function getModalStyle() {
     transform: `translate(-${top}%, -${left}%)`
   };
 }
-const drawerWidth = 240;
+const drawerWidth = "auto";
 
 const styles = theme => ({
   root: {
@@ -71,7 +74,7 @@ const styles = theme => ({
     position: "absolute",
     marginLeft: drawerWidth,
     backgroundColor: "#e1e1e1",
-
+    zIndex: 1,
     [theme.breakpoints.up("md")]: {
       width: "100%"
       // width: `calc(100% - ${drawerWidth}px)`
@@ -88,6 +91,7 @@ const styles = theme => ({
   },
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
+    border: "none",
     width: drawerWidth,
     [theme.breakpoints.up("md")]: {
       position: "relative"
@@ -107,13 +111,20 @@ const styles = theme => ({
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit * 2,
-    height: 550
+    height: 550,
+    overflow: "hidden"
   },
   sections: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit,
     textAlign: "right"
+  },
+  margin: {
+    margin: theme.spacing.unit * 2
+  },
+  padding: {
+    padding: `0 ${theme.spacing.unit * 2}px`
   }
 });
 
@@ -310,16 +321,12 @@ class Company extends Component {
       },
       body: JSON.stringify(data)
     })
-      .then(function(response) {
-        console.log(response);
+      .then(response => {
         return response.json();
+        // return JSON.parse(response);
       })
-      .then(function(myJson) {
-        console.log(myJson);
-        // if (myJson === "message sent") {
-        // } else {
-        //   console.log("error");
-        // }
+      .then(myJson => {
+        // console.log(myJson);
       });
 
     this.setState({
@@ -328,61 +335,38 @@ class Company extends Component {
     });
   };
 
-  handleLogin = () => {
-    const data = {
-      user: this.state.user,
-      password: this.state.password
-    };
-    fetch(`${Config.apiUrl}/wp-json/orpheus/v1/login`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-      .then(function(response) {
-        console.log(response);
-        return response.json();
-      })
-      .then(function(myJson) {
-        console.log(myJson);
-        // if (myJson === "message sent") {
-        // } else {
-        //   console.log("error");
-        // }
-      });
-  };
   render() {
     const showTotal = this.state.total.reduce((a, b) => a + b, 0);
     const { classes, theme } = this.props;
     const { tabValue } = this.state;
-    const categories = this.state.menu.map((category, index) => {
-      return (
-        <div key={index}>
-          <ListItem className={classes.sections}>
-            {category.section_title}{" "}
-          </ListItem>
-          <Divider />
-        </div>
-      );
-    });
+    const categories = this.state.menu ? (
+      this.state.menu.map((category, index) => {
+        return (
+          <div key={index}>
+            <ScrollIntoView
+              style={{ textAlign: "center" }}
+              selector={`#${category.section_title}-${index}`}
+            >
+              <ListItem button>
+                <ListItemText primary={category.section_title} />
+              </ListItem>
+            </ScrollIntoView>
+            <Divider />
+          </div>
+        );
+      })
+    ) : (
+      <h2> This Place doesn't have a menu yet</h2>
+    );
 
     if (!this.props.post.title) return <Error statusCode={404} />;
     const comp = this.props.post;
-    // const newMenu = menu();
-    // console.log(this);
+
     return (
-      <Layout>
-        <Menu
+      <div>
+        <Navigation
           menu={this.props.headerMenu}
           settings={this.props.settings}
-          active={this.props.url.asPath}
-          user={this.state.user}
-          password={this.state.password}
-          showPassword={this.showPassword}
-          handleLogin={this.handleLogin}
-          handleInputChange={this.handleInputChange}
         />
 
         <div className={classes.root}>
@@ -423,14 +407,16 @@ class Company extends Component {
                         onClose={this.handleSectionClose}
                       >
                         <div style={getModalStyle()} className={classes.paper}>
+                          <Button
+                            style={{ position: "absolute", right: -5, top: -3 }}
+                            onClick={this.handleSectionClose}
+                          >
+                            x
+                          </Button>
                           <Paper elevation={15}>
                             <div className={classes.orderList}>
-                              <List>{categories}</List>
-                              <div className={classes.orderList}>
-                                <Button onClick={this.handleSectionClose}>
-                                  Close
-                                </Button>
-                              </div>
+                              <List component="nav">{categories}</List>
+                              <div className={classes.orderList} />
                             </div>
                           </Paper>
                         </div>
@@ -439,7 +425,17 @@ class Company extends Component {
                   </div>
                   <div className="order">
                     <Hidden only={["md", "lg", "xl"]}>
-                      <Button onClick={this.handleOrderOpen}>Open Modal</Button>
+                      {this.state.order.length > 0 && (
+                        <Badge
+                          color="primary"
+                          badgeContent={this.state.order.length}
+                          className={classes.margin}
+                        >
+                          <Button onClick={this.handleOrderOpen}>
+                            <ShoppingBasket color="secondary" />
+                          </Button>
+                        </Badge>
+                      )}
                       <Modal
                         aria-labelledby="simple-modal-title"
                         aria-describedby="simple-modal-description"
@@ -491,7 +487,7 @@ class Company extends Component {
                         paper: classes.drawerPaper
                       }}
                     >
-                      {categories}
+                      <List component="nav">{categories}</List>
                     </Drawer>
                   </Hidden>
                   <div className={classes.menuItems}>
@@ -557,7 +553,7 @@ class Company extends Component {
             {tabValue === 3 && <div>My orders</div>}
           </main>
         </div>
-      </Layout>
+      </div>
     );
   }
 }

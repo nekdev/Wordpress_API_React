@@ -1,66 +1,83 @@
-import Layout from "../components/Layout.js";
-import React, { Component } from "react";
-import fetch from "isomorphic-unfetch";
-import Link from "next/link";
-import { mapObject } from "../src/helpers";
-import PageWrapper from "../components/PageWrapper.js";
-import Menu from "../components/Menu.js";
+/* eslint-disable jsx-a11y/anchor-is-valid */
+
+import React from "react";
 import { Config } from "../config.js";
+import PageWrapper from "../components/PageWrapper.js";
+import fetch from "isomorphic-unfetch";
+import PropTypes from "prop-types";
+import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions";
 import Typography from "@material-ui/core/Typography";
+import { withStyles } from "@material-ui/core/styles";
+import Link from "next/link";
 
-const headerImageStyle = {
-  marginTop: 50,
-  marginBottom: 50
-};
-const mainStyle = {
-  margin: "3rem 8%",
-  backgroundColor: "#eeeeee"
-};
-const styles = {
-  card: {
-    width: "250px",
-    margin: "0.5rem"
-  },
-  media: {
-    height: 0,
-    paddingTop: "56.25%" // 16:9
+import Navigation from "../components/Navigation.js";
+
+const styles = theme => ({
+  root: {
+    textAlign: "center"
+    // paddingTop: theme.spacing.unit * 20
   },
   companies: {
     display: "flex",
     flexWrap: "wrap",
     padding: "1rem"
+  },
+  mainStyle: {
+    margin: "3rem 8%",
+    backgroundColor: "#eeeeee"
+  },
+  card: {
+    width: 330,
+    margin: "3rem"
+  },
+  media: {
+    height: 240
   }
-};
+});
 
-class Index extends Component {
+class Index extends React.Component {
   state = {
     open: false
   };
+
   static async getInitialProps(context) {
     const postsRes = await fetch(
       `${Config.apiUrl}/wp-json/wp/v2/companys?_embed`
     );
     const posts = await postsRes.json();
-
     return { posts };
   }
 
-  render() {
-    console.log(
-      "\n    _        _     _            _\n   /_\\  _ __(_)___| |_ ___  ___| |__\n  //_\\\\| '__| / __| __/ _ \\/ __| '_ \\\n /  _  \\ |  | \\__ \\ |_  __/ (__| | | |\n \\_/ \\_/_|  |_|___/\\__\\___|\\___|_| |_|" +
-        '\n========================================\nIt looks like you\'re looking for something!\nMaybe some piece of code,\nor do you need help?\nIf you just want to say "Hello", \nemail me @ aristech.gr@gmail.com\n========================================\n'
-    );
+  handleClose = () => {
+    this.setState({
+      open: false
+    });
+  };
 
+  handleClick = () => {
+    this.setState({
+      open: true
+    });
+  };
+
+  render() {
+    // console.log(this.props);
+    const { classes } = this.props;
+    const { open } = this.state;
     const posts = this.props.posts.map((post, index) => {
       return (
-        <Card style={styles.card} key={index}>
+        <Card className={classes.card} key={index}>
           <CardMedia
-            style={styles.media}
+            className={classes.media}
             image={post.featured_image_src}
             title={post.title.rendered}
           />
@@ -76,7 +93,7 @@ class Index extends Component {
             </Button>
             <Button size="small" color="primary">
               <Link
-                as={`/company?slug=${post.slug}`}
+                as={`/company/${post.slug}`}
                 href={`/company?slug=${post.slug}&apiRoute=post`}
               >
                 <a>Order now from {post.title.rendered}</a>
@@ -88,23 +105,22 @@ class Index extends Component {
     });
 
     return (
-      <Layout>
-        <Menu
-          open={this.state.open}
+      <div className={classes.root}>
+        <Navigation
           menu={this.props.headerMenu}
           settings={this.props.settings}
-          active={this.props.url.asPath}
-          pass={this.state.password}
-          usr={this.state.user}
         />
-        <div className="content" style={mainStyle}>
-          <div className="companies" style={styles.companies}>
-            {posts}
-          </div>
+
+        <div className={classes.mainStyle}>
+          <div className={classes.companies}>{posts}</div>
         </div>
-      </Layout>
+      </div>
     );
   }
 }
 
-export default PageWrapper(Index);
+Index.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
+export default PageWrapper(withStyles(styles)(Index));

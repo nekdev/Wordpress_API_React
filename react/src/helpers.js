@@ -5,9 +5,3 @@ export function mapObject(object, callback) {
     }
   });
 }
-export function arrayToObject(array) {
-  array.reduce((obj, item) => {
-    obj[item.id] = item;
-    return obj;
-  }, {});
-}

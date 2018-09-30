@@ -5,7 +5,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
 const Order = props => {
-  const { name, price, quantity } = props.details;
+  const { name, price, quantity, extras, ingredients } = props.details;
 
   return (
     <div>
