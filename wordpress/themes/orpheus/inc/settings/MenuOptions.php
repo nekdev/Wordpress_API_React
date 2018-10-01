@@ -11,7 +11,7 @@
  * ========================
  */
 use Inc\settings\Settings;
-use Inc\adminPages\ThemeSettings;
+// use Inc\adminPages\ThemeSettings;
 use Inc\adminPages\CPT;
 
 
@@ -20,14 +20,14 @@ class MenuOptions
     //private $adm;
     function __construct(){
         $this   ->  settings            =   new Settings;
-        $this   ->  themeSettings       =   new ThemeSettings;
+        // $this   ->  themeSettings       =   new ThemeSettings;
         $this   ->  cpt                 =   new CPT;
         $this   ->  theme               =   get_template_directory();
     }
     //Create Theme Page and Subpages
     public function admin_menu_option()
     {
-        add_menu_page('Orpheus Options', 'Orpheus', 'manage_options', 'orpheus', array($this->themeSettings,'get_theme_settings'), 'data:image/svg+xml;base64,' . base64_encode('<svg style="enable-background:new 0 0 20 20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" version="1.1" y="0px" x="0px">
+        add_menu_page('Orpheus Options', 'Orpheus', 'manage_options', 'orpheus', array($this,'themeSettings'), 'data:image/svg+xml;base64,' . base64_encode('<svg style="enable-background:new 0 0 20 20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" version="1.1" y="0px" x="0px">
         <style type="text/css">.st0{fill:#164D9D;}
            .st1{fill:#FFFFFF;}
            .st2{fill:none;stroke:#FFFFFF;stroke-width:0.1079;stroke-miterlimit:10;}
@@ -68,6 +68,7 @@ class MenuOptions
         </g>
        </svg>'), 200);
     //    add_submenu_page($parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function)
+        //add_submenu_page('orpheus', 'Theme Options', 'Settings', 'manage_options', 'orpheus', array($this->themeSettings, 'get_theme_settings'));
         add_submenu_page('orpheus', 'Theme Options', 'Settings', 'manage_options', 'orpheus', array($this,'themeSettings'));
         add_submenu_page('orpheus', 'cpt', 'CPT', 'manage_options', 'edit.php?post_type=cpt'); //,array($this->settings,'blog_cpt'));
         add_submenu_page( 'orpheus', 'Contact Options', 'Contact', 'manage_options', 'orpheus_contact', array($this, 'contactSettings'));
@@ -75,6 +76,11 @@ class MenuOptions
         add_submenu_page( 'orpheus', 'Slider Options', 'Slider', 'manage_options', 'orpheus_slider', array($this, 'sliderSettings'));
         add_submenu_page('orpheus', 'Css Options', 'Custom Css', 'manage_options', 'orpheus_css', array($this,'cssSettings'));
         add_action( 'admin_init', array($this->settings, 'settings'));
+    }
+
+    function themeSettings()
+    {
+        require_once $this->theme . '/inc/adminPages/ThemeSettings.php';
     }
 
     function contactSettings()

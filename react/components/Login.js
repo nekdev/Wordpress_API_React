@@ -74,6 +74,9 @@ class Login extends Component {
   handleMClose = () => {
     this.setState({ anchorEl: null });
   };
+  handleLogout = () => {
+    this.setState({ anchorEl: null });
+  };
   handleToggle = () => {
     this.setState(state => ({ mopen: !state.open }));
   };
@@ -126,7 +129,7 @@ class Login extends Component {
           <Consumer>
             {context => (
               <div>
-                {!context.user ? (
+                {!context.isLoggedIn ? (
                   <Button
                     style={{ color: "#fff" }}
                     onClick={context.handleOpen}
@@ -160,6 +163,7 @@ class Login extends Component {
                     >
                       <MenuItem onClick={this.handleMClose}>Profile</MenuItem>
                       <MenuItem onClick={this.handleMClose}>My Orders</MenuItem>
+                      <MenuItem onClick={this.handleLogout}>Log Out</MenuItem>
                     </Menu>
                   </div>
                 )}

@@ -29,7 +29,8 @@ const styles = theme => ({
   companies: {
     display: "flex",
     flexWrap: "wrap",
-    padding: "1rem"
+    padding: "1rem",
+    justifyContent: "center"
   },
   mainStyle: {
     margin: "3rem 8%",
@@ -51,7 +52,7 @@ class Index extends React.Component {
 
   static async getInitialProps(context) {
     const postsRes = await fetch(
-      `${Config.apiUrl}/wp-json/wp/v2/companys?_embed`
+      `${Config.apiUrl}/wp-json/wp/v2/Company?_embed`
     );
     const posts = await postsRes.json();
     return { posts };
@@ -70,7 +71,7 @@ class Index extends React.Component {
   };
 
   render() {
-    // console.log(this.props);
+    console.log(this.props);
     const { classes } = this.props;
     const { open } = this.state;
     const posts = this.props.posts.map((post, index) => {

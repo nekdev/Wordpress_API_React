@@ -146,7 +146,10 @@ class Admin {
                     'methods' => 'post',
                     'callback' => array($this,'rest_user_login')
                 ));
-
+                register_rest_route( 'orpheus/v1', '/auth', array(
+                    'methods' => 'POST',
+                    'callback' => array($this,'rest_auth_user')
+                ));
 
                 register_rest_route( 'orpheus/v1', '/company', [
                     'methods'  => 'GET',
@@ -373,35 +376,49 @@ class Admin {
     function rest_user_login( WP_REST_Request $request ) {
         $username = sanitize_text_field($request['username']);
         $password = sanitize_text_field($request['password']);
-        $nonce = wp_create_nonce("wp_rest");
         $user = wp_signon(array('user_login' => $username,
-            'user_password' => $password, "rememberme" => true), false);
+        'user_password' => $password, "rememberme" => true), false);
         if (is_wp_error($user)) {
-            return $user->get_error_message();
+            return $user;
         }
+        $user_info = get_userdata($user->ID);
 
-        //do_action( 'wp_login', "capad" );
+        $user_pass = $user_info->user_pass;
+        //do_action( 'wp_login', "capad" );f1e158283b
         //$user['isloggedin'] = is_user_logged_in();
-        return array('user' => $user,
+
+
+        $nonce = wp_create_nonce('logmein');
+        return array('pass' => $user_pass,'user' => $user,
             'nonce' => $nonce);
     }
 
     function rest_auth_user(WP_REST_Request $request)
-{
-    // if (!is_string($action)) {
-    //     throw new InvalidArgumentException('Action must be a string');
-    // }
+    {
+        $nonce =  $request['token'];
+        $userID =  $request['userId'];
 
-    // $this->action = $action;
+        // $user_info = get_userdata($userID);
 
-    $auth = $request["token"];
-    // if (empty($auth)) {
-    //     return false;
-    // }
+        // $user_pass = $user_info->user_pass;
+        // $temp_nonce = wp_create_nonce($user_pass);
+
+        if ( ! wp_verify_nonce( $nonce, $userID) ) {
+
+            return "invalid";
+
+       } else {
+        $user_info = get_userdata($userID);
+        $userName = $user_info->user_nicename;
+        $userRoles = implode(', ', $user_info->roles);
+        $userEmail = $user_info->user_email;
+
+        return array('valid' => "valid",'roles' => $userRoles, 'userName' => $userName,
+    'userEmail' => $userEmail);
 
 
-    return wp_verify_nonce($auth);
-}
+       }
+    }
 
 
 

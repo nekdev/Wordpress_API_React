@@ -1,1 +1,1 @@
-export const Config = { apiUrl: "http://aristech.dev" };
+export const Config = { apiUrl: "http://delivery.test" };

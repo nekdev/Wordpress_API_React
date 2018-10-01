@@ -8,14 +8,15 @@ const { Provider, Consumer } = createContext();
 // Then create a provider Component
 class AppProvider extends Component {
   state = {
-    userLoggedIn: true,
+    userLoggedIn: this.props.children.props.userData.valid,
     errMsg: "",
     userInputName: "User Name",
     userInputPass: "Password",
     profile: {
-      username: "",
-      userEmail: "",
-      nonce: ""
+      userId: jsCookie.get("userId"),
+      userName: this.props.children.props.userData.userName,
+      userEmail: this.props.children.props.userData.userEmail,
+      nonce: jsCookie.get("token")
     },
     toggleLogin: () => {
       const setTo = !this.state.userLoggedIn;
@@ -28,7 +29,7 @@ class AppProvider extends Component {
     return (
       <Provider
         value={{
-          user: this.state.profile.username,
+          user: this.state.profile.userName,
           notOpen: this.state.notOpen,
           isLoggedIn: this.state.userLoggedIn,
           formOpen: this.state.formOpen,
@@ -58,6 +59,7 @@ class AppProvider extends Component {
               };
               fetch(`${Config.apiUrl}/wp-json/orpheus/v1/login`, {
                 method: "POST",
+                xhrFields: { withCredentials: true },
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json"
@@ -68,6 +70,7 @@ class AppProvider extends Component {
                   return response.json();
                 })
                 .then(myJson => {
+                  // console.log(myJson);
                   if (
                     typeof myJson !== "object" &&
                     myJson.includes("Invalid username")
@@ -95,9 +98,13 @@ class AppProvider extends Component {
                       });
                     }, 4000);
                   } else {
+                    // const d = new Date();
+                    // d.setTime(d.getTime() + (2*24*60*60*1000));
+                    // const expires = "expires="+ d.toUTCString();
                     this.setState({
                       profile: {
-                        username: myJson.user.data.user_nicename,
+                        userId: myJson.user.data.ID,
+                        userName: myJson.user.data.user_nicename,
                         userEmail: myJson.user.data.user_email,
                         nonce: myJson.nonce
                       },
@@ -105,7 +112,10 @@ class AppProvider extends Component {
                       notOpen: true,
                       formOpen: false
                     });
-                    jsCookie.set("token", myJson.nonce);
+                    jsCookie.set("token", myJson.nonce, { expires: 2 });
+                    jsCookie.set("userId", myJson.user.data.ID, { expires: 2 });
+                    // jsCookie.set("userName", myJson.user.data.user_nicename);
+                    // jsCookie.set("userEmail", myJson.user.data.user_email);
                   }
                 });
             }
