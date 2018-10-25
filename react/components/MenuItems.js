@@ -142,13 +142,10 @@ const MenuItems = props => {
                     onClose={props.handleModalClose}
                   >
                     <div style={style.modal}>
-                      <Typography variant="title" id="modal-title">
+                      <Typography variant="h4" id="modal-title">
                         {item.dish_name + " " + item.dish_price + "€"}
                       </Typography>
-                      <Typography
-                        variant="subheading"
-                        id={item.dish_descriptio}
-                      >
+                      <Typography variant="subtitle1" id={item.dish_descriptio}>
                         {item.dish_descriptio}
                       </Typography>
                       <div className={classes.container}>

@@ -8,16 +8,16 @@ const { Provider, Consumer } = createContext();
 // Then create a provider Component
 class AppProvider extends Component {
   state = {
+    profile: {
+      userId: jsCookie.get("userId"),
+      userName: jsCookie.get("userName"),
+      userEmail: jsCookie.get("userEmail"),
+      nonce: jsCookie.get("token")
+    },
     userLoggedIn: this.props.children.props.userData.valid,
     errMsg: "",
     userInputName: "User Name",
     userInputPass: "Password",
-    profile: {
-      userId: jsCookie.get("userId"),
-      userName: this.props.children.props.userData.userName,
-      userEmail: this.props.children.props.userData.userEmail,
-      nonce: jsCookie.get("token")
-    },
     toggleLogin: () => {
       const setTo = !this.state.userLoggedIn;
       this.setState({ userLoggedIn: setTo });
@@ -114,8 +114,8 @@ class AppProvider extends Component {
                     });
                     jsCookie.set("token", myJson.nonce, { expires: 2 });
                     jsCookie.set("userId", myJson.user.data.ID, { expires: 2 });
-                    // jsCookie.set("userName", myJson.user.data.user_nicename);
-                    // jsCookie.set("userEmail", myJson.user.data.user_email);
+                    jsCookie.set("userName", myJson.user.data.user_nicename);
+                    jsCookie.set("userEmail", myJson.user.data.user_email);
                   }
                 });
             }

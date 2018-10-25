@@ -4,12 +4,14 @@
  *
  */
 
- namespace Inc\Settings;
+ namespace Inc\settings;
 
 /* ========================
  * Settings
  * ========================
  */
+
+use Inc\Globals;
 
 class Settings
 {
@@ -351,13 +353,12 @@ function user_cpt() {
     global $wpdb;
 
     $custom_post_type = 'cpt'; // define your custom post type slug here
-
     // A sql query to return all post titles
     $results = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = %s and post_status = 'publish'", $custom_post_type ), ARRAY_A );
 
     // Return null if we found no results
-    if ( ! $results )
-        return;
+    // if ( ! $results )
+    //     return;
 
     foreach( $results as $index => $post ) {
         // $output .= '<option value="' . $post['ID'] . '">' . $post['post_title'] . '</option>';
@@ -379,7 +380,7 @@ function user_cpt() {
             'labels' => $labels,
             'public' => true,
             'has_archive' => true,
-            'publicly_queryable' => true,
+            'publicly_queryable' => false,
             'query_var' => true,
             'rewrite' => true,
             'capability_type' => 'post',
@@ -392,6 +393,7 @@ function user_cpt() {
                 'revisions',
                 'comments',
                 'metaboxes',
+                'custom-fields'
             ),
             // 'taxonomies' => array('category', 'post_tag'),
             'menu_icon' => 'data:image/svg+xml;base64,' . base64_encode('<svg style="enable-background:new 0 0 20 20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" version="1.1" y="0px" x="0px">
@@ -437,10 +439,10 @@ function user_cpt() {
             'menu_position' => 5,
             'exclude_from_search' => false,
             'show_in_rest'       => true,
-            'rest_base'          => $post['post_title'],
+            'rest_base'          => sanitize_title(Globals::remove_accent($post['post_title'])),
             'rest_controller_class' => 'WP_REST_Posts_Controller',
         );
-        register_post_type($post['post_title'],$args);
+        register_post_type(sanitize_title(Globals::remove_accent($post['post_title'])),$args);
 
 
     }
@@ -546,48 +548,48 @@ function orpheus_save_cat_data($post_id)
 
 
 }
-function delivery_cpt(){
-    $labels = array(
-        'name'               => 'Company',
-        'singular_name'      => 'Company',
-        'add_new'            => 'Add Company',
-        'all_items'          => 'All Companys',
-        'add_new_item'       => 'Add Company',
-        'edit_item'          => 'Edit Company',
-        'new_item'           => 'New Company',
-        'view_item'          => 'View Company',
-        'search_item'        => 'Search Company',
-        'not_found'          => 'No items found',
-        'not_found_in_trash' => 'No items found in trash',
-        'parent_item_colon'  => 'Parent Item'
-    );
-    $args = array(
-        'labels' => $labels,
-        'public' => true,
-        'has_archive' => true,
-        'publicly_queryable' => true,
-        'query_var' => true,
-        'rewrite' => true,
-        'capability_type' => 'post',
-        'hierarchical' => false,
-        'supports' => array(
-            'title',
-            'editor',
-            'excerpt',
-            'thumbnail',
-            'revisions',
-            'comments',
-        ),
-        // 'taxonomies' => array('category', 'post_tag'),
-        'menu_icon' => 'dashicons-hammer',
-        'menu_position' => 5,
-        'exclude_from_search' => false,
-        'show_in_rest'       => true,
-        'rest_base'          => 'companys',
-        'rest_controller_class' => 'WP_REST_Posts_Controller',
-    );
-    register_post_type('company',$args);
-    }
+// function delivery_cpt(){
+//     $labels = array(
+//         'name'               => 'Company',
+//         'singular_name'      => 'Company',
+//         'add_new'            => 'Add Company',
+//         'all_items'          => 'All Companys',
+//         'add_new_item'       => 'Add Company',
+//         'edit_item'          => 'Edit Company',
+//         'new_item'           => 'New Company',
+//         'view_item'          => 'View Company',
+//         'search_item'        => 'Search Company',
+//         'not_found'          => 'No items found',
+//         'not_found_in_trash' => 'No items found in trash',
+//         'parent_item_colon'  => 'Parent Item'
+//     );
+//     $args = array(
+//         'labels' => $labels,
+//         'public' => true,
+//         'has_archive' => true,
+//         'publicly_queryable' => true,
+//         'query_var' => true,
+//         'rewrite' => true,
+//         'capability_type' => 'post',
+//         'hierarchical' => false,
+//         'supports' => array(
+//             'title',
+//             'editor',
+//             'excerpt',
+//             'thumbnail',
+//             'revisions',
+//             'comments',
+//         ),
+//         // 'taxonomies' => array('category', 'post_tag'),
+//         'menu_icon' => 'dashicons-hammer',
+//         'menu_position' => 5,
+//         'exclude_from_search' => false,
+//         'show_in_rest'       => true,
+//         'rest_base'          => 'companys',
+//         'rest_controller_class' => 'WP_REST_Posts_Controller',
+//     );
+//     register_post_type('company',$args);
+//     }
 
     function usr_taxonomies() {
 
@@ -611,7 +613,8 @@ function delivery_cpt(){
                     $slug           = str_replace(' ', '_', strtolower($key_value)).'_type';
                     $single_name    = ucfirst($key_value);
                     $plural_name    = ucfirst($key_value).'s';
-                    $post_type      = $post["post_title"];
+                    //$post_type      = $post["post_title"];
+                    $post_type  =   sanitize_title(Globals::remove_accent($post['post_title']));
                     $rewrite        = array( 'slug' => $slug );
                     $rest_base      = $slug;
                     $hierarchical   = true;
@@ -655,69 +658,69 @@ function delivery_cpt(){
     }
 
 
-    function company_taxonomies() {
-    //add new taxonomy hierarchical
-    $taxonomies = array(
-		array(
-			'slug'         => 'company_type',
-			'single_name'  => 'KIND OF BUSINESS (catering, pizza etc...)',
-			'plural_name'  => 'KIND OF BUSINESS ',
-			'post_type'    => 'company',
-            'rewrite'      => array( 'slug' => 'company_type' ),
-            'rest_base'    => 'company_type',
-            'hierarchical' => false,
+    // function company_taxonomies() {
+    // //add new taxonomy hierarchical
+    // $taxonomies = array(
+	// 	array(
+	// 		'slug'         => 'company_type',
+	// 		'single_name'  => 'KIND OF BUSINESS (catering, pizza etc...)',
+	// 		'plural_name'  => 'KIND OF BUSINESS ',
+	// 		'post_type'    => 'company',
+    //         'rewrite'      => array( 'slug' => 'company_type' ),
+    //         'rest_base'    => 'company_type',
+    //         'hierarchical' => false,
 
-		),
-		array(
-			'slug'         => 'Kitchen-type',
-			'single_name'  => 'Kitchen Type',
-			'plural_name'  => 'Kitchen Types',
-			'post_type'    => 'company',
-            'hierarchical' => false,
-            'rest_base'    => 'kitchen_type',
+	// 	),
+	// 	array(
+	// 		'slug'         => 'Kitchen-type',
+	// 		'single_name'  => 'Kitchen Type',
+	// 		'plural_name'  => 'Kitchen Types',
+	// 		'post_type'    => 'company',
+    //         'hierarchical' => false,
+    //         'rest_base'    => 'kitchen_type',
 
-		),
-		array(
-			'slug'         => 'area',
-			'single_name'  => 'Cover Area',
-			'plural_name'  => 'Cover Areas',
-            'post_type'    => 'company',
-            'hierarchical' => true,
-            'rest_base'    => 'area',
+	// 	),
+	// 	array(
+	// 		'slug'         => 'area',
+	// 		'single_name'  => 'Cover Area',
+	// 		'plural_name'  => 'Cover Areas',
+    //         'post_type'    => 'company',
+    //         'hierarchical' => true,
+    //         'rest_base'    => 'area',
 
-		),
-	);
-	foreach( $taxonomies as $taxonomy ) {
-		$labels = array(
-			'name' => $taxonomy['plural_name'],
-			'singular_name' => $taxonomy['single_name'],
-			'search_items' =>  'Search ' . $taxonomy['plural_name'],
-			'all_items' => 'All ' . $taxonomy['plural_name'],
-			'parent_item' => 'Parent ' . $taxonomy['single_name'],
-			'parent_item_colon' => 'Parent ' . $taxonomy['single_name'] . ':',
-			'edit_item' => 'Edit ' . $taxonomy['single_name'],
-			'update_item' => 'Update ' . $taxonomy['single_name'],
-			'add_new_item' => 'Add New ' . $taxonomy['single_name'],
-			'new_item_name' => 'New ' . $taxonomy['single_name'] . ' Name',
-			'menu_name' => $taxonomy['plural_name']
-		);
+	// 	),
+	// );
+	// foreach( $taxonomies as $taxonomy ) {
+	// 	$labels = array(
+	// 		'name' => $taxonomy['plural_name'],
+	// 		'singular_name' => $taxonomy['single_name'],
+	// 		'search_items' =>  'Search ' . $taxonomy['plural_name'],
+	// 		'all_items' => 'All ' . $taxonomy['plural_name'],
+	// 		'parent_item' => 'Parent ' . $taxonomy['single_name'],
+	// 		'parent_item_colon' => 'Parent ' . $taxonomy['single_name'] . ':',
+	// 		'edit_item' => 'Edit ' . $taxonomy['single_name'],
+	// 		'update_item' => 'Update ' . $taxonomy['single_name'],
+	// 		'add_new_item' => 'Add New ' . $taxonomy['single_name'],
+	// 		'new_item_name' => 'New ' . $taxonomy['single_name'] . ' Name',
+	// 		'menu_name' => $taxonomy['plural_name']
+	// 	);
 
-		$rewrite = isset( $taxonomy['rewrite'] ) ? $taxonomy['rewrite'] : array( 'slug' => $taxonomy['slug'] );
-		$hierarchical = isset( $taxonomy['hierarchical'] ) ? $taxonomy['hierarchical'] : true;
+	// 	$rewrite = isset( $taxonomy['rewrite'] ) ? $taxonomy['rewrite'] : array( 'slug' => $taxonomy['slug'] );
+	// 	$hierarchical = isset( $taxonomy['hierarchical'] ) ? $taxonomy['hierarchical'] : true;
 
-		register_taxonomy( $taxonomy['slug'], $taxonomy['post_type'], array(
-			'hierarchical' => $hierarchical,
-			'labels' => $labels,
-            'show_ui' => true,
-            'show_admin_column' => true,
-			'query_var' => true,
-            'rewrite' => $rewrite,
-            'show_in_rest'  => true,
-            'rest_base' => $taxonomy['rest_base'],
-            'rest_controller_class' => 'WP_REST_Terms_Controller',
-		));
-	}
-    }
+	// 	register_taxonomy( $taxonomy['slug'], $taxonomy['post_type'], array(
+	// 		'hierarchical' => $hierarchical,
+	// 		'labels' => $labels,
+    //         'show_ui' => true,
+    //         'show_admin_column' => true,
+	// 		'query_var' => true,
+    //         'rewrite' => $rewrite,
+    //         'show_in_rest'  => true,
+    //         'rest_base' => $taxonomy['rest_base'],
+    //         'rest_controller_class' => 'WP_REST_Terms_Controller',
+	// 	));
+	// }
+    // }
 
 function activate_contact()
 {
@@ -756,7 +759,7 @@ function cpt(){
         'capability_type'   =>  'post',
         'hierarchical'      =>  false,
         'menu_position'     =>  26,
-        'supports'          =>  array( 'title', 'editor', 'author' ),
+        'supports'          =>  array( 'title', 'editor', 'author','custom-fields' ),
     );
     register_post_type( 'cpt', $args );
 }

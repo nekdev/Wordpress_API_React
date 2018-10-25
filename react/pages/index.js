@@ -1,23 +1,16 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import React from "react";
+import Link from "next/link";
 import { Config } from "../config.js";
 import PageWrapper from "../components/PageWrapper.js";
 import fetch from "isomorphic-unfetch";
 import PropTypes from "prop-types";
+
 import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogActions from "@material-ui/core/DialogActions";
 import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
-import Link from "next/link";
+// import ShopList from "../components/ShopList";
+import MediaCard from "../components/MediaCard";
 
 import Navigation from "../components/Navigation.js";
 
@@ -28,35 +21,67 @@ const styles = theme => ({
   },
   companies: {
     display: "flex",
-    flexWrap: "wrap",
     padding: "1rem",
-    justifyContent: "center"
+    flexWrap: "nowrap",
+    justifyContent: "center",
+    flexDirection: "column",
+    alignItems: "center"
   },
+
   mainStyle: {
     margin: "3rem 8%",
     backgroundColor: "#eeeeee"
   },
-  card: {
-    width: 330,
-    margin: "3rem"
+  button: {
+    margin: theme.spacing.unit
   },
   media: {
     height: 240
+  },
+  grow: {
+    flexGrow: 1
   }
 });
 
 class Index extends React.Component {
   state = {
-    open: false
+    open: false,
+    lat: "",
+    lon: ""
   };
 
   static async getInitialProps(context) {
-    const postsRes = await fetch(
-      `${Config.apiUrl}/wp-json/wp/v2/Company?_embed`
-    );
+    const postsRes = await fetch(`${Config.apiUrl}/wp-json/wp/v2/company`);
     const posts = await postsRes.json();
     return { posts };
   }
+  componentDidMount() {
+    navigator.geolocation.getCurrentPosition(location => {
+      this.setState({
+        lat: location.coords.latitude,
+        lon: location.coords.longitude
+      });
+    });
+  }
+
+  getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = this.deg2rad(lat2 - lat1); // deg2rad below
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(lat1)) *
+        Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return d;
+  };
+
+  deg2rad = deg => {
+    return deg * (Math.PI / 180);
+  };
 
   handleClose = () => {
     this.setState({
@@ -69,41 +94,53 @@ class Index extends React.Component {
       open: true
     });
   };
+  compare = (a, b) => {
+    if (a.level < b.level) return -1;
+    if (a.level > b.level) return 1;
+    return 0;
+  };
 
   render() {
-    console.log(this.props);
     const { classes } = this.props;
     const { open } = this.state;
-    const posts = this.props.posts.map((post, index) => {
-      return (
-        <Card className={classes.card} key={index}>
-          <CardMedia
-            className={classes.media}
-            image={post.featured_image_src}
-            title={post.title.rendered}
-          />
-          <CardContent>
-            <Typography gutterBottom variant="headline" component="h2">
-              {post.title.rendered}
-            </Typography>
-            <Typography component="p">{post.excerpt.rendered}</Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small" color="primary">
-              Share
-            </Button>
-            <Button size="small" color="primary">
-              <Link
-                as={`/company/${post.slug}`}
-                href={`/company?slug=${post.slug}&apiRoute=post`}
-              >
-                <a>Order now from {post.title.rendered}</a>
-              </Link>
-            </Button>
-          </CardActions>
-        </Card>
+
+    const distance = this.props.posts.map(post => {
+      post.distance = this.getDistanceFromLatLonInKm(
+        this.state.lat,
+        this.state.lon,
+        post.acf.mapLAt,
+        post.acf.mapLong
       );
+      return post;
     });
+    if (this.state.lat && this.state.lon) {
+    }
+    const storeInfo = this.props.posts
+      .filter(m => m.slug === "menu")
+      .map(i => i.acf);
+
+    const posts =
+      this.props.posts.code !== "rest_no_route" ? (
+        distance
+          .filter(menu => menu.slug !== "menu")
+          .sort((a, b) => (a.distance > b.distance ? 1 : -1))
+          .map((post, index) => (
+            // <ShopList
+            //   key={index}
+            //   list={post}
+            //   lat={this.state.lat}
+            //   lon={this.state.lon}
+            // />
+            <MediaCard
+              key={index}
+              list={post}
+              lat={this.state.lat}
+              lon={this.state.lon}
+            />
+          ))
+      ) : (
+        <h3>Please create posts</h3>
+      );
 
     return (
       <div className={classes.root}>
@@ -111,7 +148,45 @@ class Index extends React.Component {
           menu={this.props.headerMenu}
           settings={this.props.settings}
         />
+        {/* <img src={storeInfo[0].storelogo} alt="new" />
+        <div>
+          {storeInfo.hasbooking === "1" && (
+            <Button size="large" color="primary" className={classes.button}>
+              <a
+                href={storeInfo.bookingurl}
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
+                BOOK NOW
+              </a>
+            </Button>
+          )}
+          <Button color="primary" className={classes.button}>
+            CALL NOW
+          </Button>
 
+          {storeInfo[0].hasmenu === "1" && (
+            <Button size="large" color="primary" className={classes.button}>
+              <Link
+                prefetch
+                as={`/mpiftekakia/menu`}
+                href={`/mpiftekakia?slug=menu`}
+              >
+                <a style={{ color: "inherit", textDecoration: "none" }}>
+                  ORDER NOW
+                </a>
+              </Link>
+            </Button>
+          )}
+        </div>
+        <div>
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            className={classes.grow}
+          >
+            Καλέστε μας στο κατάστημα που εξυπηρετεί
+          </Typography>
+        </div> */}
         <div className={classes.mainStyle}>
           <div className={classes.companies}>{posts}</div>
         </div>

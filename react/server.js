@@ -27,6 +27,11 @@ app
       const queryParams = { slug: req.params.slug, apiRoute: "page" };
       app.render(req, res, actualPage, queryParams);
     });
+    server.get("/mpiftekakia/:slug", (req, res) => {
+      const actualPage = "/mpiftekakia";
+      const queryParams = { slug: req.params.slug, apiRoute: "page" };
+      app.render(req, res, actualPage, queryParams);
+    });
 
     server.get("/category/:slug", (req, res) => {
       const actualPage = "/category";

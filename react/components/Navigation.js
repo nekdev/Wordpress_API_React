@@ -12,7 +12,7 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Grow from "@material-ui/core/Grow";
 import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
-import MenuList from "@material-ui/core/MenuList";
+import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Login from "./Login";
 
@@ -43,10 +43,6 @@ class Navigation extends React.Component {
     return parts.length > 2 ? parts[parts.length - 2] : "";
   }
 
-  // handleChange = event => {
-  //   this.setState({ auth: event.target.checked });
-  // };
-
   handleMenu = event => {
     this.setState({ anchorEl: event.currentTarget });
   };
@@ -54,33 +50,27 @@ class Navigation extends React.Component {
   handleClose = () => {
     this.setState({ anchorEl: null });
   };
-  handleToggle = () => {
-    this.setState(state => ({ open: !state.open }));
-  };
 
-  handleWpClose = event => {
-    if (this.anchorEl.contains(event.target)) {
-      return;
-    }
-
+  handleWpClose = () => {
     this.setState({ open: false });
   };
 
   render() {
     const { classes } = this.props;
-    const { open } = this.state;
+    const { open, anchorEl } = this.state;
     const menuItems = this.props.menu.items.map(item => {
       const slug = this.getSlug(item.url);
       const actualPage = item.object === "category" ? "category" : "post";
       return (
-        <MenuItem key={item.ID} onClick={this.handleWpClose}>
-          <Link
-            as={`/${item.object}/${slug}`}
-            href={`/${actualPage}?slug=${slug}&apiRoute=${item.object}`}
-          >
+        <Link
+          key={item.ID}
+          as={`/${item.object}/${slug}`}
+          href={`/${actualPage}?slug=${slug}&apiRoute=${item.object}`}
+        >
+          <MenuItem onClick={this.handleWpClose}>
             <a>{item.title}</a>
-          </Link>
-        </MenuItem>
+          </MenuItem>
+        </Link>
       );
     });
 
@@ -95,47 +85,35 @@ class Navigation extends React.Component {
         >
           <Toolbar>
             <Button
-              buttonRef={node => {
-                this.anchorEl = node;
-              }}
-              aria-owns={open ? "menu-list-grow" : null}
+              aria-owns={open ? "menu-appbar" : null}
               aria-haspopup="true"
-              onClick={this.handleToggle}
+              onClick={this.handleMenu}
+              color="inherit"
             >
               <MenuIcon />
             </Button>
 
-            <Popper
-              open={open}
-              anchorEl={this.anchorEl}
-              transition
-              disablePortal
-              className={classes.popper}
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left"
+              }}
+              open={Boolean(anchorEl)}
+              onClose={this.handleClose}
             >
-              {({ TransitionProps, placement }) => (
-                <Grow
-                  {...TransitionProps}
-                  id="menu-list-grow"
-                  style={{
-                    transformOrigin:
-                      placement === "bottom" ? "center top" : "center bottom"
-                  }}
-                >
-                  <Paper>
-                    <ClickAwayListener onClickAway={this.handleWpClose}>
-                      <MenuList>
-                        <MenuItem onClick={this.handleWpClose}>
-                          <Link href={"/"}>
-                            <a className={classes.menuLink}>Home</a>
-                          </Link>
-                        </MenuItem>
-                        {menuItems}
-                      </MenuList>
-                    </ClickAwayListener>
-                  </Paper>
-                </Grow>
-              )}
-            </Popper>
+              <Link href={"/"}>
+                <MenuItem onClick={this.handleWpClose}>
+                  <a>Home</a>
+                </MenuItem>
+              </Link>
+              {menuItems}
+            </Menu>
 
             <Link href={"/"}>
               <a className={classes.menuLink}>
@@ -151,11 +129,7 @@ class Navigation extends React.Component {
               </a>
             </Link>
 
-            <Typography
-              variant="title"
-              color="inherit"
-              className={classes.grow}
-            >
+            <Typography variant="h3" color="inherit" className={classes.grow}>
               {this.props.settings.site_title}
             </Typography>
             <div

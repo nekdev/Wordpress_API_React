@@ -16,6 +16,7 @@ use Inc\settings\FrontendOrigin;
 use Inc\settings\MenuOptions;
 use Inc\settings\Settings;
 use Inc\settings\EnqueueAdmin;
+use Inc\settings\Duplicate;
 
 
 
@@ -30,6 +31,7 @@ class Admin {
         $this   ->  MenuOptions         =   new MenuOptions;
         $this   ->  Settings            =   new Settings;
         $this   ->  enqueueAdmin        =   new EnqueueAdmin;
+        $this   ->  duplicate           =   new Duplicate;
     }
     function register()
     {
@@ -45,7 +47,8 @@ class Admin {
         add_action( 'admin_menu',array($this->MenuOptions, 'admin_menu_option'));
         remove_filter( 'the_excerpt', 'wpautop' );
         add_action( 'init', array($this->Settings,'cpt'));
-        add_action( 'init', array($this->Settings,'company_taxonomies'));
+        add_action( 'admin_action_duplicate_post_as_draft', array($this->duplicate, 'duplicate_post_as_draft' ));
+        add_filter( 'post_row_actions', array($this->duplicate, 'duplicate_post_link'), 10, 2 );
         add_action( 'init', array($this->Settings,'usr_taxonomies'));
         add_action( 'init', array($this->Settings,'user_cpt'));
         add_action( 'add_meta_boxes', array($this->Settings,'user_add_metabox' ));
@@ -103,6 +106,20 @@ class Admin {
                         'description' => 'String representing a valid Company slug',
                     ]
                 );
+                $test_slug_arg = array_merge(
+                    $slug_arg,
+                    [
+                        "name" => "Orpheus",
+                        'description' => 'String representing a valid test slug',
+                    ]
+                );
+                $mpiftekakia_slug_arg = array_merge(
+                    $slug_arg,
+                    [
+                        "name" => "Orpheus",
+                        'description' => 'String representing a valid Mpiftekakia slug',
+                    ]
+                );
                 $contact_slug_arg = array_merge(
                     $slug_arg,
                     [
@@ -139,8 +156,8 @@ class Admin {
                 ] );
 
                 register_rest_route('orpheus/v1', 'users/register', array(
-                    'methods' => 'POST',
-                    'callback' => 'rest_user_endpoint_handler',
+                    'methods' => 'post',
+                    'callback' => array($this, 'rest_user_register_handler'),
                   ));
                   register_rest_route( 'orpheus/v1', '/login', array(
                     'methods' => 'post',
@@ -159,6 +176,30 @@ class Admin {
                             $company_slug_arg,
                             [
                                 'required' => true,
+                            ]
+                        ),
+                    ],
+                ] );
+                register_rest_route( 'orpheus/v1', '/test', [
+                    'methods'  => 'GET',
+                    'callback' => array($this, 'rest_get_test'),
+                    'args' => [
+                        'slug' => array_merge(
+                            $test_slug_arg,
+                            [
+                                'required' => true,
+                            ]
+                        ),
+                    ],
+                ] );
+                register_rest_route( 'orpheus/v1', '/mpiftekakia', [
+                    'methods'  => 'GET',
+                    'callback' => array($this, 'rest_get_mpiftekakia'),
+                    'args' => [
+                        'slug' => array_merge(
+                            $mpiftekakia_slug_arg,
+                            [
+                                'required' => false,
                             ]
                         ),
                     ],
@@ -311,61 +352,61 @@ class Admin {
     }
 
 
-    ////// set user Registretation and login
-     //USER REGISTER
-    // function rest_user_endpoint_handler(WP_REST_Request $request) {
+    // set user Registretation
 
-    //     $username = sanitize_text_field($request['username']);
-    //     $email = sanitize_text_field($request['email']);
-    //     $password = sanitize_text_field($request['password']);
-    //     // $role = sanitize_text_field($parameters['role']);
-    //     $error = new WP_Error();
-    //     if (empty($username)) {
-    //       $error->add(400, __("Username field 'username' is required.", 'wp-rest-user'), array('status' => 400));
-    //       return $error;
-    //     }
-    //     if (empty($email)) {
-    //       $error->add(401, __("Email field 'email' is required.", 'wp-rest-user'), array('status' => 400));
-    //       return $error;
-    //     }
-    //     if (empty($password)) {
-    //       $error->add(404, __("Password field 'password' is required.", 'wp-rest-user'), array('status' => 400));
-    //       return $error;
-    //     }
-    //     // if (empty($role)) {
-    //     //  $role = 'subscriber';
-    //     // } else {
-    //     //     if ($GLOBALS['wp_roles']->is_role($role)) {
-    //     //      // Silence is gold
-    //     //     } else {
-    //     //    $error->add(405, __("Role field 'role' is not a valid. Check your User Roles from Dashboard.", 'wp_rest_user'), array('status' => 400));
-    //     //    return $error;
-    //     //     }
-    //     // }
-    //     $user_id = username_exists($username);
-    //     if (!$user_id && email_exists($email) == false) {
-    //       $user_id = wp_create_user($username, $password, $email);
-    //       if (!is_wp_error($user_id)) {
-    //         // Ger User Meta Data (Sensitive, Password included. DO NOT pass to front end.)
-    //         $user = get_user_by('id', $user_id);
-    //         // $user->set_role($role);
-    //         $user->set_role('subscriber');
-    //         // WooCommerce specific code
-    //         if (class_exists('WooCommerce')) {
-    //           $user->set_role('customer');
-    //         }
-    //         // Ger User Data (Non-Sensitive, Pass to front end.)
-    //         $response['code'] = 200;
-    //         $response['message'] = __("User '" . $username . "' Registration was Successful", "wp-rest-user");
-    //       } else {
-    //         return $user_id;
-    //       }
-    //     } else {
-    //       $error->add(406, __("Email already exists, please try 'Reset Password'", 'wp-rest-user'), array('status' => 400));
-    //       return $error;
-    //     }
-    //     return new WP_REST_Response($response, 123);
-    //   }
+    function rest_user_register_handler(WP_REST_Request $request) {
+
+        $username = sanitize_text_field($request['username']);
+        $email = sanitize_text_field($request['email']);
+        $password = sanitize_text_field($request['password']);
+        // $role = sanitize_text_field($parameters['role']);
+        $error = new WP_Error();
+        if (empty($username)) {
+          $error->add(400, __("Username field 'username' is required.", 'wp-rest-user'), array('status' => 400));
+          return $error;
+        }
+        if (empty($email)) {
+          $error->add(401, __("Email field 'email' is required.", 'wp-rest-user'), array('status' => 400));
+          return $error;
+        }
+        if (empty($password)) {
+          $error->add(404, __("Password field 'password' is required.", 'wp-rest-user'), array('status' => 400));
+          return $error;
+        }
+        // if (empty($role)) {
+        //  $role = 'subscriber';
+        // } else {
+        //     if ($GLOBALS['wp_roles']->is_role($role)) {
+        //      // Silence is gold
+        //     } else {
+        //    $error->add(405, __("Role field 'role' is not a valid. Check your User Roles from Dashboard.", 'wp_rest_user'), array('status' => 400));
+        //    return $error;
+        //     }
+        // }
+        $user_id = username_exists($username);
+        if (!$user_id && email_exists($email) == false) {
+          $user_id = wp_create_user($username, $password, $email);
+          if (!is_wp_error($user_id)) {
+            // Ger User Meta Data (Sensitive, Password included. DO NOT pass to front end.)
+            $user = get_user_by('id', $user_id);
+            // $user->set_role($role);
+            $user->set_role('subscriber');
+            // WooCommerce specific code
+            if (class_exists('WooCommerce')) {
+              $user->set_role('customer');
+            }
+            // Ger User Data (Non-Sensitive, Pass to front end.)
+            $response['code'] = 200;
+            $response['message'] = __("User '" . $username . "' Registration was Successful", "wp-rest-user");
+          } else {
+            return $user_id;
+          }
+        } else {
+          $error->add(406, __("Email already exists, please try 'Reset Password'", 'wp-rest-user'), array('status' => 400));
+          return $error;
+        }
+        return new WP_REST_Response($response, 123);
+      }
 
     /**
      * Respond to a REST API request user login.
@@ -389,7 +430,7 @@ class Admin {
 
 
         $nonce = wp_create_nonce('logmein');
-        return array('pass' => $user_pass,'user' => $user,
+        return array('user' => $user,
             'nonce' => $nonce);
     }
 
@@ -403,7 +444,7 @@ class Admin {
         // $user_pass = $user_info->user_pass;
         // $temp_nonce = wp_create_nonce($user_pass);
 
-        if ( ! wp_verify_nonce( $nonce, $userID) ) {
+        if ( ! wp_verify_nonce( $nonce, 'logmein') ) {
 
             return "invalid";
 
@@ -413,7 +454,7 @@ class Admin {
         $userRoles = implode(', ', $user_info->roles);
         $userEmail = $user_info->user_email;
 
-        return array('valid' => "valid",'roles' => $userRoles, 'userName' => $userName,
+        return array('valid' => 'valid','roles' => $userRoles, 'userName' => $userName,
     'userEmail' => $userEmail);
 
 
@@ -440,6 +481,14 @@ class Admin {
      */
     function rest_get_company( WP_REST_Request $request ) {
         return $this->rest_get_content( $request, 'company', __FUNCTION__ );
+    }
+
+    function rest_get_test( WP_REST_Request $request ) {
+        return $this->rest_get_content( $request, 'cpt-4', __FUNCTION__ );
+    }
+
+    function rest_get_mpiftekakia( WP_REST_Request $request ) {
+        return $this->rest_get_content( $request, 'mpiftekakia', __FUNCTION__ );
     }
 
 
@@ -575,7 +624,9 @@ class Admin {
             [
                 'post',
                 'page',
-                'company',
+                'mpiftekakia',
+                'company'
+
             ],
             true
         );
@@ -635,7 +686,9 @@ class Admin {
             [
                 'post',
                 'page',
-                'company',
+                'mpiftekakia',
+                'company'
+
             ],
             true
         );

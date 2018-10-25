@@ -27,6 +27,7 @@ import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import Order from "../components/Order";
 import ScrollIntoView from "react-scroll-into-view";
+import Login from "../components/Login";
 
 function getModalStyle() {
   const top = 50;
@@ -125,10 +126,16 @@ const styles = theme => ({
   },
   padding: {
     padding: `0 ${theme.spacing.unit * 2}px`
+  },
+  topBarTabs: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "flex-start",
+    width: "100%"
   }
 });
 
-class Company extends Component {
+class Mpiftekakia extends Component {
   state = {
     store: "",
     menu: [],
@@ -156,7 +163,7 @@ class Company extends Component {
   static async getInitialProps(context) {
     const { slug } = context.query;
     const res = await fetch(
-      `${Config.apiUrl}/wp-json/orpheus/v1/company?slug=${slug}`
+      `${Config.apiUrl}/wp-json/orpheus/v1/mpiftekakia?slug=menu`
     );
     const post = await res.json();
     return { post };
@@ -364,15 +371,20 @@ class Company extends Component {
 
     return (
       <div>
-        <Navigation
+        {/* <Navigation
           menu={this.props.headerMenu}
           settings={this.props.settings}
-        />
+        /> */}
 
         <div className={classes.root}>
           <AppBar className={classes.appBar}>
             <Toolbar>
-              <Typography variant="h3" color="inherit" noWrap>
+              <Typography
+                variant="h3"
+                className={classes.topBarTabs}
+                color="inherit"
+
+              >
                 <Tabs
                   value={tabValue}
                   onChange={this.handleTabChange}
@@ -385,6 +397,7 @@ class Company extends Component {
                   <Tab label="Reviews" />
                   <Tab label="My orders" href="#basic-tabs" />
                 </Tabs>
+                <Login />
               </Typography>
             </Toolbar>
           </AppBar>
@@ -557,8 +570,10 @@ class Company extends Component {
     );
   }
 }
-Company.propTypes = {
+Mpiftekakia.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired
 };
-export default PageWrapper(withStyles(styles, { withTheme: true })(Company));
+export default PageWrapper(
+  withStyles(styles, { withTheme: true })(Mpiftekakia)
+);
